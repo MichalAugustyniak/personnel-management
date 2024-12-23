@@ -60,7 +60,7 @@ public class DefaultTaskEventService implements TaskEventService {
     public TaskEventDTO getTaskEventById(long id) {
         TaskEvent taskEvent = taskEventRepository.findTaskEventById(id)
                 .orElseThrow(
-                        () -> new TaskEventNotFoundException(String.format("Task event of id %s not found", id))
+                        () -> new TaskEventNotFoundException(String.format("Task event of id %d not found", id))
                 );
         return TaskEventMapper.map(taskEvent);
     }
