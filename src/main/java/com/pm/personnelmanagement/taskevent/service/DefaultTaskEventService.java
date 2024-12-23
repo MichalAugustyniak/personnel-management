@@ -38,7 +38,7 @@ public class DefaultTaskEventService implements TaskEventService {
     public void editTaskEvent(EditTaskEventRequest request) {
         TaskEvent taskEvent = taskEventRepository.findTaskEventById(request.id())
                 .orElseThrow(
-                        () -> new TaskEventNotFoundException(String.format("Task event of id %s not found", request.id()))
+                        () -> new TaskEventNotFoundException(String.format("Task event of id %d not found", request.id()))
                 );
         request.taskEvent().name().ifPresent(taskEvent::setName);
         request.taskEvent().description().ifPresent(taskEvent::setDescription);
@@ -51,7 +51,7 @@ public class DefaultTaskEventService implements TaskEventService {
     public void deleteTaskEvent(long id) {
         taskEventRepository.findTaskEventById(id)
                 .orElseThrow(
-                        () -> new TaskEventNotFoundException(String.format("Task event of id %s not found", id))
+                        () -> new TaskEventNotFoundException(String.format("Task event of id %d not found", id))
                 );
         taskEventRepository.removeTaskEventById(id);
     }
