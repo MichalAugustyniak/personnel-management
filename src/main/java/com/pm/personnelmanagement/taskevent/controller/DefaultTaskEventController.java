@@ -1,9 +1,6 @@
 package com.pm.personnelmanagement.taskevent.controller;
 
-import com.pm.personnelmanagement.taskevent.dto.EditTaskEventRequest;
-import com.pm.personnelmanagement.taskevent.dto.TaskEventDTO;
-import com.pm.personnelmanagement.taskevent.dto.TaskEventRequest;
-import com.pm.personnelmanagement.taskevent.dto.TaskEventsRequest;
+import com.pm.personnelmanagement.taskevent.dto.*;
 import com.pm.personnelmanagement.taskevent.service.TaskEventService;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -29,7 +26,10 @@ public class DefaultTaskEventController implements TaskEventController {
 
     @Override
     @PatchMapping("/{id}")
-    public ResponseEntity<Void> editTaskEvent(@PathVariable long id, @RequestBody TaskEventRequest request) {
+    public ResponseEntity<Void> editTaskEvent(
+            @PathVariable long id,
+            @RequestBody TaskEventEditRequest request
+    ) {
         taskEventService.editTaskEvent(new EditTaskEventRequest(id, request));
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -53,6 +53,8 @@ public class DefaultTaskEventController implements TaskEventController {
             @RequestParam int pageNumber,
             @RequestParam int pageSize
     ) {
-        return ResponseEntity.ok(taskEventService.getAllTaskEvents(new TaskEventsRequest(pageNumber, pageSize)));
+        return ResponseEntity.ok(taskEventService.getAllTaskEvents(
+                new TaskEventsRequest(pageNumber, pageSize))
+        );
     }
 }
