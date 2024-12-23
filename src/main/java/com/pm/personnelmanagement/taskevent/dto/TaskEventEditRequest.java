@@ -1,11 +1,12 @@
 package com.pm.personnelmanagement.taskevent.dto;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 public record TaskEventEditRequest(
-        String name,
-        String description,
-        LocalDateTime startDateTime,
-        LocalDateTime endDateTime
+        Optional<String> name,
+        Optional<String> description,
+        Optional<LocalDateTime> startDateTime,
+        Optional<LocalDateTime> endDateTime
 ) {
 }

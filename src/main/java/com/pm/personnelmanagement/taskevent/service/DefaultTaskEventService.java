@@ -40,18 +40,10 @@ public class DefaultTaskEventService implements TaskEventService {
                 .orElseThrow(
                         () -> new TaskEventNotFoundException(String.format("Task event of id %s not found", request.id()))
                 );
-        Optional.ofNullable(request.taskEvent().name()).ifPresent(
-                taskEvent::setName
-        );
-        Optional.ofNullable(request.taskEvent().description()).ifPresent(
-                taskEvent::setDescription
-        );
-        Optional.ofNullable(request.taskEvent().startDateTime()).ifPresent(
-                taskEvent::setStartDateTime
-        );
-        Optional.ofNullable(request.taskEvent().endDateTime()).ifPresent(
-                taskEvent::setEndDateTime
-        );
+        request.taskEvent().name().ifPresent(taskEvent::setName);
+        request.taskEvent().description().ifPresent(taskEvent::setDescription);
+        request.taskEvent().startDateTime().ifPresent(taskEvent::setStartDateTime);
+        request.taskEvent().endDateTime().ifPresent(taskEvent::setEndDateTime);
         taskEventRepository.save(taskEvent);
     }
 
