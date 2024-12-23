@@ -9,6 +9,4 @@ import java.util.Optional;
 @Repository
 public interface TaskEventRepository extends JpaRepository<TaskEvent, Long> {
     Optional<TaskEvent> findTaskEventById(Long id);
-
-    void removeTaskEventById(Long id);
 }

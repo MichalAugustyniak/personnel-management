@@ -2,10 +2,13 @@ package com.pm.personnelmanagement.taskevent.model;
 
 import com.pm.personnelmanagement.task.model.Task;
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
 
+import java.sql.Types;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 @Entity
 @Table(name = "task_events")
@@ -14,7 +17,10 @@ public class TaskEvent {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
+
+    @JdbcTypeCode(Types.VARCHAR)
+    private UUID uuid = UUID.randomUUID();
+
     private String name;
     private String description;
     private LocalDateTime startDateTime;
@@ -41,6 +47,14 @@ public class TaskEvent {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public UUID getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(UUID uuid) {
+        this.uuid = uuid;
     }
 
     public String getName() {

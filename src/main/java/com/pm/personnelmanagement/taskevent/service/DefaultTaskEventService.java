@@ -12,8 +12,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
 @Service
 public class DefaultTaskEventService implements TaskEventService {
 
@@ -53,7 +51,7 @@ public class DefaultTaskEventService implements TaskEventService {
                 .orElseThrow(
                         () -> new TaskEventNotFoundException(String.format("Task event of id %d not found", id))
                 );
-        taskEventRepository.removeTaskEventById(id);
+        taskEventRepository.deleteById(id);
     }
 
     @Override
