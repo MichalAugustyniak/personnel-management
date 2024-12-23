@@ -18,8 +18,7 @@ public class Permission {
 
     private String userId;
     private Boolean canRead;
-    private Boolean canWrite;
-    private Boolean canEdit;
+    private Boolean canUpdate;
     private Boolean canDelete;
 
     @Override
@@ -29,8 +28,7 @@ public class Permission {
                 ", userId='" + userId + '\'' +
                 ", resourceUUID='" + resourceUUID + '\'' +
                 ", canRead=" + canRead +
-                ", canWrite=" + canWrite +
-                ", canEdit=" + canEdit +
+                ", canUpdate=" + canUpdate +
                 ", canDelete=" + canDelete +
                 '}';
     }
@@ -67,20 +65,12 @@ public class Permission {
         this.canRead = canRead;
     }
 
-    public Boolean getCanWrite() {
-        return canWrite;
+    public Boolean getCanUpdate() {
+        return canUpdate;
     }
 
-    public void setCanWrite(Boolean canWrite) {
-        this.canWrite = canWrite;
-    }
-
-    public Boolean getCanEdit() {
-        return canEdit;
-    }
-
-    public void setCanEdit(Boolean canEdit) {
-        this.canEdit = canEdit;
+    public void setCanUpdate(Boolean canUpdate) {
+        this.canUpdate = canUpdate;
     }
 
     public Boolean getCanDelete() {
