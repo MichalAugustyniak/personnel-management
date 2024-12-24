@@ -3,6 +3,7 @@ package com.pm.personnelmanagement.task.controller;
 import com.pm.personnelmanagement.task.dto.*;
 import com.pm.personnelmanagement.task.service.TaskService;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -15,7 +16,7 @@ public class DefaultTaskController implements TaskController {
 
     private final TaskService taskService;
 
-    public DefaultTaskController(TaskService taskService) {
+    public DefaultTaskController(@Qualifier("defaultTaskService") TaskService taskService) {
         this.taskService = taskService;
     }
 
