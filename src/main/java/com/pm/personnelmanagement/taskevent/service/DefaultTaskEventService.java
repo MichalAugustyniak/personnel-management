@@ -12,6 +12,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 public class DefaultTaskEventService implements TaskEventService {
 
@@ -22,7 +24,7 @@ public class DefaultTaskEventService implements TaskEventService {
     }
 
     @Override
-    public void createTaskEvent(TaskEventRequest request) {
+    public UUID createTaskEvent(TaskEventRequest request) {
         TaskEvent taskEvent = new TaskEvent();
         System.out.println(request);
         taskEvent.setName(request.name());
@@ -30,6 +32,7 @@ public class DefaultTaskEventService implements TaskEventService {
         taskEvent.setStartDateTime(request.startDateTime());
         taskEvent.setEndDateTime(request.endDateTime());
         taskEventRepository.save(taskEvent);
+        return taskEvent.getUuid();
     }
 
     @Override

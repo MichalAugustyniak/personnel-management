@@ -10,6 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/api/tasks")
 public class DefaultTaskController implements TaskController {
@@ -22,16 +24,16 @@ public class DefaultTaskController implements TaskController {
 
     @Override
     @PostMapping
-    public ResponseEntity<Void> createTask(@RequestBody CreateTaskRequest request, HttpServletRequest httpServletRequest) {
+    public ResponseEntity<CreateTaskResponse> createTask(@RequestBody CreateTaskRequest request, HttpServletRequest httpServletRequest) {
 
         String token = httpServletRequest.getHeader(HttpHeaders.AUTHORIZATION); // todo: decode and check if user has access
         String username = "username"; // todo: remove the placeholder
 
-        taskService.createTask(new CreateTaskDTO(
+        UUID uuid = taskService.createTask(new CreateTaskDTO(
                 username,
                 request
         ));
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return new ResponseEntity<>(new CreateTaskResponse(uuid.toString()), HttpStatus.CREATED);
     }
 
     @Override

@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 // todo: implement using Spring Security
 
 @Service
@@ -27,8 +29,8 @@ public class TaskServicePermissionProxy implements TaskService {
     }
 
     @Override
-    public void createTask(CreateTaskDTO dto) {
-        
+    public UUID createTask(CreateTaskDTO dto) {
+        return null;
     }
 
     @Override

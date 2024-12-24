@@ -3,8 +3,10 @@ package com.pm.personnelmanagement.task.service;
 import com.pm.personnelmanagement.task.dto.*;
 import org.springframework.data.domain.Page;
 
+import java.util.UUID;
+
 public interface TaskService {
-    void createTask(CreateTaskDTO dto);
+    UUID createTask(CreateTaskDTO dto);
 
     void editTask(EditTaskDTO dto);
 

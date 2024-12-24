@@ -12,6 +12,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 public class DefaultTaskService implements TaskService {
 
@@ -24,7 +26,7 @@ public class DefaultTaskService implements TaskService {
     }
 
     @Override
-    public void createTask(CreateTaskDTO dto) {
+    public UUID createTask(CreateTaskDTO dto) {
         TaskEvent taskEvent = taskEventRepository.findTaskEventById(dto.task().taskEventId())
                 .orElseThrow(
                         () -> new TaskEventNotFoundException(String.format("Task event of id %d not found", dto.task().taskEventId()))
@@ -38,6 +40,7 @@ public class DefaultTaskService implements TaskService {
         task.setCreatedBy(dto.createdBy());
         task.setTaskEvent(taskEvent);
         taskRepository.save(task);
+        return task.getUuid();
     }
 
     @Override

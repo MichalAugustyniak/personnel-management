@@ -6,8 +6,10 @@ import com.pm.personnelmanagement.taskevent.dto.TaskEventRequest;
 import com.pm.personnelmanagement.taskevent.dto.TaskEventsRequest;
 import org.springframework.data.domain.Page;
 
+import java.util.UUID;
+
 public interface TaskEventService {
-    void createTaskEvent(TaskEventRequest request);
+    UUID createTaskEvent(TaskEventRequest request);
 
     void editTaskEvent(EditTaskEventRequest request);
 

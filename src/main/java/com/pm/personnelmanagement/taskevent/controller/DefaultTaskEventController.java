@@ -7,6 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/api/task-events")
 public class DefaultTaskEventController implements TaskEventController {
@@ -19,9 +21,9 @@ public class DefaultTaskEventController implements TaskEventController {
 
     @Override
     @PostMapping
-    public ResponseEntity<Void> createTaskEvent(@RequestBody TaskEventRequest request) {
-        taskEventService.createTaskEvent(request);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+    public ResponseEntity<CreateTaskEventResponse> createTaskEvent(@RequestBody TaskEventRequest request) {
+        UUID uuid = taskEventService.createTaskEvent(request);
+        return new ResponseEntity<>(new CreateTaskEventResponse(uuid), HttpStatus.CREATED);
     }
 
     @Override

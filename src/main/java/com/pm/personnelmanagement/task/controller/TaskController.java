@@ -6,7 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 
 public interface TaskController {
-    ResponseEntity<Void> createTask(CreateTaskRequest request, HttpServletRequest httpServletRequest);
+    ResponseEntity<CreateTaskResponse> createTask(CreateTaskRequest request, HttpServletRequest httpServletRequest);
 
     ResponseEntity<Void> editTask(EditTaskRequest request, long id, HttpServletRequest httpServletRequest);
 

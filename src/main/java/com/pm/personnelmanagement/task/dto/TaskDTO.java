@@ -3,6 +3,7 @@ package com.pm.personnelmanagement.task.dto;
 import java.time.LocalDateTime;
 
 public record TaskDTO(
+        String uuid,
         String name,
         String description,
         LocalDateTime startDateTime,

@@ -6,6 +6,7 @@ import com.pm.personnelmanagement.task.model.Task;
 public class TaskMapper {
     public static TaskDTO map(Task task) {
         return new TaskDTO(
+                task.getUuid().toString(),
                 task.getName(),
                 task.getDescription(),
                 task.getStartDateTime(),
