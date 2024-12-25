@@ -62,14 +62,14 @@ public class DefaultTaskService implements TaskService {
 
     @Override
     public void deleteTask(long id) {
-        taskRepository.findTaskById(id).orElseThrow(() -> new TaskEventNotFoundException(String.format("Task of id %d not found", id)));
+        taskRepository.findTaskById(id).orElseThrow(() -> new TaskNotFoundException(String.format("Task of id %d not found", id)));
         taskRepository.deleteById(id);
     }
 
     @Override
     public TaskDTO getTaskById(long id) {
         Task task = taskRepository.findTaskById(id).orElseThrow(
-                () -> new TaskEventNotFoundException(String.format("Task of id %d not found", id))
+                () -> new TaskNotFoundException(String.format("Task of id %d not found", id))
         );
         return TaskMapper.map(task);
     }
