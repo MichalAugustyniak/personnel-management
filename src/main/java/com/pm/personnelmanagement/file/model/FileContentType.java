@@ -1,6 +1,6 @@
 package com.pm.personnelmanagement.file.model;
 
-import com.pm.personnelmanagement.file.exception.NoSuchFileContentType;
+import com.pm.personnelmanagement.file.exception.MissingFileMediaTypeException;
 
 public enum FileContentType {
     IMAGE_PNG("image/png"),
@@ -16,7 +16,7 @@ public enum FileContentType {
         return switch (contentType) {
             case "image/png" -> FileContentType.IMAGE_PNG;
             case "image/jpeg" -> FileContentType.IMAGE_JPEG;
-            default -> throw new NoSuchFileContentType(String.format("No such file content type %s", contentType));
+            default -> throw new MissingFileMediaTypeException(String.format("No such file content type %s", contentType));
         };
     }
 

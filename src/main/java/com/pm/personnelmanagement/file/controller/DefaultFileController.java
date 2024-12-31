@@ -2,7 +2,7 @@ package com.pm.personnelmanagement.file.controller;
 
 import com.pm.personnelmanagement.file.dto.SaveFileRequest;
 import com.pm.personnelmanagement.file.dto.SaveFileResponse;
-import com.pm.personnelmanagement.file.exception.NoSuchFileContentType;
+import com.pm.personnelmanagement.file.exception.MissingFileMediaTypeException;
 import com.pm.personnelmanagement.file.model.File;
 import com.pm.personnelmanagement.file.service.FileService;
 import org.springframework.core.io.Resource;
@@ -40,7 +40,7 @@ public class DefaultFileController implements FileController {
                             file.getOriginalFilename(),
                             MediaType.parseMediaType(
                                     Optional.ofNullable(file.getContentType()).orElseThrow(
-                                            () -> new NoSuchFileContentType("File content type is empty")
+                                            () -> new MissingFileMediaTypeException("Missing file media type")
                                     )
                             ),
                             file.getInputStream(),
