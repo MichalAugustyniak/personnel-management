@@ -2,6 +2,7 @@ package com.pm.personnelmanagement.common.handler;
 
 import com.pm.personnelmanagement.common.dto.ApiException;
 import com.pm.personnelmanagement.file.exception.FileNotFoundException;
+import com.pm.personnelmanagement.file.exception.MissingFileMediaTypeException;
 import com.pm.personnelmanagement.file.exception.NotImplementedException;
 import com.pm.personnelmanagement.task.exception.TaskNotFoundException;
 import com.pm.personnelmanagement.taskevent.expcetion.TaskEventNotFoundException;
@@ -51,6 +52,17 @@ public class ApiExceptionHandler {
     @ExceptionHandler(value = NotImplementedException.class)
     public ResponseEntity<Object> notImplementedException(NotImplementedException e) {
         HttpStatus status = HttpStatus.NOT_IMPLEMENTED;
+        ApiException exception = new ApiException(
+                e.getMessage(),
+                status.value(),
+                LocalDateTime.now()
+        );
+        return new ResponseEntity<>(exception, status);
+    }
+
+    @ExceptionHandler(value = MissingFileMediaTypeException.class)
+    public ResponseEntity<Object> MissingFileMediaTypeException(MissingFileMediaTypeException e) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
         ApiException exception = new ApiException(
                 e.getMessage(),
                 status.value(),
