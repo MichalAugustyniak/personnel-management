@@ -4,7 +4,6 @@ import com.pm.personnelmanagement.file.dto.SaveFileRequest;
 import com.pm.personnelmanagement.file.dto.SaveFileResponse;
 import com.pm.personnelmanagement.file.exception.NoSuchFileContentType;
 import com.pm.personnelmanagement.file.model.File;
-import com.pm.personnelmanagement.file.model.FileContentType;
 import com.pm.personnelmanagement.file.service.FileService;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
@@ -39,7 +38,7 @@ public class DefaultFileController implements FileController {
             UUID fileUUID = fileService.save(
                     new SaveFileRequest(
                             file.getOriginalFilename(),
-                            FileContentType.of(
+                            MediaType.parseMediaType(
                                     Optional.ofNullable(file.getContentType()).orElseThrow(
                                             () -> new NoSuchFileContentType("File content type is empty")
                                     )

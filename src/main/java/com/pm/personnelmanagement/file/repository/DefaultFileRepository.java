@@ -6,7 +6,6 @@ import com.mongodb.client.gridfs.GridFSBucket;
 import com.mongodb.client.gridfs.GridFSBuckets;
 import com.mongodb.client.gridfs.model.GridFSFile;
 import com.pm.personnelmanagement.file.dto.SaveFileRepositoryRequest;
-import com.pm.personnelmanagement.file.dto.SaveFileRequest;
 import com.pm.personnelmanagement.file.mapper.FileMapper;
 import com.pm.personnelmanagement.file.model.File;
 import com.pm.personnelmanagement.file.model.FileMetaData;
@@ -44,7 +43,7 @@ public class DefaultFileRepository implements FileRepository {
         gridFsTemplate.store(
                 request.saveFileRequest().inputStream(),
                 request.saveFileRequest().filename(),
-                request.saveFileRequest().contentType().value(),
+                request.saveFileRequest().mediaType().toString(),
                 metaData
         );
     }
