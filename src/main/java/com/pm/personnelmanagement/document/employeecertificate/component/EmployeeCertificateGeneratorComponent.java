@@ -23,24 +23,27 @@ public class EmployeeCertificateGeneratorComponent implements UserDocumentGenera
 
     public EmployeeCertificateGeneratorComponent(
             EmployeeCertificateGenerator employeeCertificateGenerator,
-            @Value("app.address.city-name") String city,
-            @Value("app.address.postal-code") String postalCode
+            @Value("${app.address.city-name}") String city,
+            @Value("${app.address.postal-code}") String postalCode
     ) {
         this.employeeCertificateGenerator = employeeCertificateGenerator;
         this.city = city;
         this.postalCode = postalCode;
     }
-    // maybe only employee uuid??
+
     public WordprocessingMLPackage generateDocx(UUID userUUID) {
         // todo: read user from keycloak api (/userinfo)
         // temporary data:
-        String firstName = "Test_firsName";
-        String lastName = "Test_lastName";
+        String firstName = "Janusz";
+        String lastName = "Kowalski";
         String pesel = "0123456789";
+        String companyName = "Januszex Sp. z o.o.";
         int workLoadHours = 40;
-        LocalDate firstDay = LocalDate.of(2024, Month.AUGUST, 1);
-        LocalDate lastDay = LocalDate.of(2024, Month.NOVEMBER, 1);
-        String workProfession = "Test_workProfession";
+        float workload = 1f;
+        LocalDate firstDayDate = LocalDate.of(2024, Month.AUGUST, 1);
+        LocalDate lastDayDate = LocalDate.of(2024, Month.NOVEMBER, 1);
+        String workProfessionName = "Magazynier";
+        boolean isEmployed = true;
         return employeeCertificateGenerator.generateDocx(
                 city,
                 postalCode,
@@ -48,10 +51,13 @@ public class EmployeeCertificateGeneratorComponent implements UserDocumentGenera
                 firstName,
                 lastName,
                 pesel,
+                companyName,
+                isEmployed,
                 workLoadHours,
-                firstDay,
-                lastDay,
-                workProfession
+                workload,
+                firstDayDate,
+                lastDayDate,
+                workProfessionName
         );
     }
 

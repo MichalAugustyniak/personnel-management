@@ -12,7 +12,10 @@ public interface EmployeeCertificateGenerator {
             String firstName,
             String lastName,
             String pesel,
-            int workLoad,
+            String companyName,
+            boolean isEmployed,
+            int workloadHours,
+            float workload,
             LocalDate firstDay,
             LocalDate lastDay,
             String workProfession
