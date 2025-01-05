@@ -21,9 +21,6 @@ public class JobPosition {
     private Set<String> responsibilities = new HashSet<>();
     @ElementCollection
     private Set<String> skills = new HashSet<>();
-    @Column(name = "user_uuid", unique = true, nullable = false)
-    @JdbcTypeCode(Types.VARCHAR)
-    private UUID userUUID;
     @Column(unique = true, nullable = false)
     @JdbcTypeCode(Types.VARCHAR)
     private UUID uuid;

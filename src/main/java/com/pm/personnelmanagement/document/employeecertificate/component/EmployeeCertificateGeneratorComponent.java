@@ -3,6 +3,9 @@ package com.pm.personnelmanagement.document.employeecertificate.component;
 
 import com.pm.personnelmanagement.document.common.dto.UserDocument;
 import com.pm.personnelmanagement.document.employeecertificate.generator.EmployeeCertificateGenerator;
+import com.pm.personnelmanagement.user.exception.UserNotFoundException;
+import com.pm.personnelmanagement.user.model.User;
+import com.pm.personnelmanagement.user.repository.UserRepository;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,18 +23,26 @@ public class EmployeeCertificateGeneratorComponent implements UserDocumentGenera
     private final EmployeeCertificateGenerator employeeCertificateGenerator;
     private final String city;
     private final String postalCode;
+    private final UserRepository userRepository;
 
     public EmployeeCertificateGeneratorComponent(
             EmployeeCertificateGenerator employeeCertificateGenerator,
             @Value("${app.address.city-name}") String city,
-            @Value("${app.address.postal-code}") String postalCode
+            @Value("${app.address.postal-code}") String postalCode,
+            UserRepository userRepository
     ) {
         this.employeeCertificateGenerator = employeeCertificateGenerator;
         this.city = city;
         this.postalCode = postalCode;
+        this.userRepository = userRepository;
     }
 
     public WordprocessingMLPackage generateDocx(UUID userUUID) {
+        User user = userRepository.findByUuid(userUUID).orElseThrow(
+                () -> new UserNotFoundException(
+                        String.format("User of uuid %s not found", userUUID.toString())
+                )
+        );
         // todo: read user from keycloak api (/userinfo)
         // temporary data:
         String firstName = "Janusz";
