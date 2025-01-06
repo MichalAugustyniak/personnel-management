@@ -2,17 +2,59 @@ package com.pm.personnelmanagement.schedule.model;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "attendace_excuse_statuses")
-public class AttendanceExcuseStatus {
+@Table(name = "absence_excuse_statuses")
+public class AbsenceExcuseStatus {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
     private String description;
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "status")
-    private Set<Attendance> attendances = new HashSet<>();
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "absenceExcuseStatus")
+    private Set<DetailedAbsenceExcuseStatus> detailedAbsenceExcuseStatuses = new HashSet<>();
+    private LocalDateTime dateTime;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Set<DetailedAbsenceExcuseStatus> getDetailedAbsenceExcuseStatuses() {
+        return detailedAbsenceExcuseStatuses;
+    }
+
+    public void setDetailedAbsenceExcuseStatuses(Set<DetailedAbsenceExcuseStatus> statuses) {
+        this.detailedAbsenceExcuseStatuses = statuses;
+    }
+
+    public LocalDateTime getDateTime() {
+        return dateTime;
+    }
+
+    public void setDateTime(LocalDateTime dateTime) {
+        this.dateTime = dateTime;
+    }
 }

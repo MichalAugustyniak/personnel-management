@@ -1,4 +1,64 @@
 package com.pm.personnelmanagement.schedule.model;
 
+import com.pm.personnelmanagement.user.model.User;
+import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+
+import java.sql.Types;
+import java.util.UUID;
+
+@Entity
+@Table(name = "attendances")
 public class Attendance {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private AttendanceStatus attendanceStatus;
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private User user;
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private ScheduleDay scheduleDay;
+    @JdbcTypeCode(Types.VARCHAR)
+    private UUID uuid;
+
+    public AttendanceStatus getAttendanceStatus() {
+        return attendanceStatus;
+    }
+
+    public void setAttendanceStatus(AttendanceStatus status) {
+        this.attendanceStatus = status;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public ScheduleDay getScheduleDay() {
+        return scheduleDay;
+    }
+
+    public void setScheduleDay(ScheduleDay scheduleDay) {
+        this.scheduleDay = scheduleDay;
+    }
+
+    public UUID getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(UUID uuid) {
+        this.uuid = uuid;
+    }
 }
