@@ -1,6 +1,5 @@
 package com.pm.personnelmanagement.schedule.model;
 
-import com.pm.personnelmanagement.user.model.User;
 import jakarta.persistence.*;
 import org.hibernate.annotations.JdbcTypeCode;
 
@@ -19,11 +18,46 @@ public class Schedule {
     private UUID uuid;
     private String name;
     private String description;
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<User> users = new HashSet<>();
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "schedule")
     private Set<ScheduleDay> scheduleDays = new HashSet<>();
+    @OneToMany(mappedBy = "schedule", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<UserSchedule> userSchedules = new HashSet<>();
     private Integer maxWorkingHoursPerDay;
+    private Boolean enableHolidayAssignments;
+    private Boolean enableWorkingSaturdays;
+    private Boolean enableWorkingSundays;
+
+    public Set<UserSchedule> getUserSchedules() {
+        return userSchedules;
+    }
+
+    public void setUserSchedules(Set<UserSchedule> userSchedules) {
+        this.userSchedules = userSchedules;
+    }
+
+    public Boolean getEnableHolidayAssignments() {
+        return enableHolidayAssignments;
+    }
+
+    public void setEnableHolidayAssignments(Boolean enableHolidayAssignments) {
+        this.enableHolidayAssignments = enableHolidayAssignments;
+    }
+
+    public Boolean getEnableWorkingSaturdays() {
+        return enableWorkingSaturdays;
+    }
+
+    public void setEnableWorkingSaturdays(Boolean enableWorkingSaturdays) {
+        this.enableWorkingSaturdays = enableWorkingSaturdays;
+    }
+
+    public Boolean getEnableWorkingSundays() {
+        return enableWorkingSundays;
+    }
+
+    public void setEnableWorkingSundays(Boolean enableWorkingSundays) {
+        this.enableWorkingSundays = enableWorkingSundays;
+    }
 
     public Long getId() {
         return id;
@@ -55,14 +89,6 @@ public class Schedule {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public Set<User> getUsers() {
-        return users;
-    }
-
-    public void setUsers(Set<User> users) {
-        this.users = users;
     }
 
     public Set<ScheduleDay> getScheduleDays() {

@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import org.hibernate.annotations.JdbcTypeCode;
 
 import java.sql.Types;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -17,13 +17,21 @@ public class WorkBreak {
     @JdbcTypeCode(Types.VARCHAR)
     private UUID uuid;
     @Column(nullable = false)
-    private LocalTime startTime;
+    private LocalDateTime startDateTime;
     @Column(nullable = false)
-    private LocalTime endTime;
+    private LocalDateTime endDateTime;
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private ScheduleDay scheduleDay;
     @Column(nullable = false)
     private Boolean isPaid;
+
+    public LocalDateTime getEndDateTime() {
+        return endDateTime;
+    }
+
+    public void setEndDateTime(LocalDateTime endDateTime) {
+        this.endDateTime = endDateTime;
+    }
 
     public Long getId() {
         return id;
@@ -41,20 +49,20 @@ public class WorkBreak {
         this.uuid = uuid;
     }
 
-    public LocalTime getStartTime() {
-        return startTime;
+    public LocalDateTime getStartDateTime() {
+        return startDateTime;
     }
 
-    public void setStartTime(LocalTime startTime) {
-        this.startTime = startTime;
+    public void setStartDateTime(LocalDateTime startDateTime) {
+        this.startDateTime = startDateTime;
     }
 
-    public LocalTime getEndTime() {
-        return endTime;
+    public LocalDateTime getEndTime() {
+        return endDateTime;
     }
 
-    public void setEndTime(LocalTime endTime) {
-        this.endTime = endTime;
+    public void setEndTime(LocalDateTime endDateTime) {
+        this.endDateTime = endDateTime;
     }
 
     public ScheduleDay getScheduleDay() {

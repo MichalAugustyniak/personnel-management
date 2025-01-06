@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import org.hibernate.annotations.JdbcTypeCode;
 
 import java.sql.Types;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -18,6 +19,26 @@ public class ScheduleDay {
     private UUID uuid;
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Schedule schedule;
+    private LocalDateTime startDateTime;
+    private LocalDateTime endDateTime;
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "scheduleDay")
+    private Set<WorkBreak> workBreaks = new HashSet<>();
+
+    public LocalDateTime getStartDateTime() {
+        return startDateTime;
+    }
+
+    public void setStartDateTime(LocalDateTime startDateTime) {
+        this.startDateTime = startDateTime;
+    }
+
+    public LocalDateTime getEndDateTime() {
+        return endDateTime;
+    }
+
+    public void setEndDateTime(LocalDateTime endDateTime) {
+        this.endDateTime = endDateTime;
+    }
 
     public Set<WorkBreak> getWorkBreaks() {
         return workBreaks;
@@ -50,7 +71,4 @@ public class ScheduleDay {
     public void setId(Long id) {
         this.id = id;
     }
-
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "scheduleDay")
-    private Set<WorkBreak> workBreaks = new HashSet<>();
 }
