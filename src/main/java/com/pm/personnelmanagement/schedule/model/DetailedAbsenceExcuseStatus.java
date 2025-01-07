@@ -19,6 +19,15 @@ public class DetailedAbsenceExcuseStatus {
     private UUID uuid;
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "detailedAbsenceExcuseStatus")
     private AbsenceExcuse absenceExcuse;
+    private Boolean isChecked;
+
+    public Boolean getChecked() {
+        return isChecked;
+    }
+
+    public void setChecked(Boolean checked) {
+        isChecked = checked;
+    }
 
     public AbsenceExcuse getAbsenceExcuse() {
         return absenceExcuse;

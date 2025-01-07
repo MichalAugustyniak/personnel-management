@@ -6,7 +6,7 @@ import java.util.UUID;
 public record CreateScheduleDTO(
         String name,
         String description,
-        Boolean maxWorkingHoursPerDay,
+        int maxWorkingHoursPerDay,
         Boolean enableHolidayAssignments,
         Boolean enableWorkingSaturdays,
         Boolean enableWorkingSundays,

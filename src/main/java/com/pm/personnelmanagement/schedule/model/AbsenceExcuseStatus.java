@@ -2,7 +2,6 @@ package com.pm.personnelmanagement.schedule.model;
 
 import jakarta.persistence.*;
 
-import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -16,7 +15,6 @@ public class AbsenceExcuseStatus {
     private String description;
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "absenceExcuseStatus")
     private Set<DetailedAbsenceExcuseStatus> detailedAbsenceExcuseStatuses = new HashSet<>();
-    private LocalDateTime dateTime;
 
     public Long getId() {
         return id;
@@ -48,13 +46,5 @@ public class AbsenceExcuseStatus {
 
     public void setDetailedAbsenceExcuseStatuses(Set<DetailedAbsenceExcuseStatus> statuses) {
         this.detailedAbsenceExcuseStatuses = statuses;
-    }
-
-    public LocalDateTime getDateTime() {
-        return dateTime;
-    }
-
-    public void setDateTime(LocalDateTime dateTime) {
-        this.dateTime = dateTime;
     }
 }

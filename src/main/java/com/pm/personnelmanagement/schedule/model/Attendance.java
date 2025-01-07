@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import org.hibernate.annotations.JdbcTypeCode;
 
 import java.sql.Types;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -17,10 +18,38 @@ public class Attendance {
     private AttendanceStatus attendanceStatus;
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private User user;
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private ScheduleDay scheduleDay;
     @JdbcTypeCode(Types.VARCHAR)
     private UUID uuid;
+    private LocalDateTime startDateTime;
+    private LocalDateTime endDateTime;
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private AbsenceExcuse absenceExcuse;
+
+    public AbsenceExcuse getAbsenceExcuse() {
+        return absenceExcuse;
+    }
+
+    public void setAbsenceExcuse(AbsenceExcuse absenceExcuse) {
+        this.absenceExcuse = absenceExcuse;
+    }
+
+    public LocalDateTime getStartDateTime() {
+        return startDateTime;
+    }
+
+    public void setStartDateTime(LocalDateTime startDateTime) {
+        this.startDateTime = startDateTime;
+    }
+
+    public LocalDateTime getEndDateTime() {
+        return endDateTime;
+    }
+
+    public void setEndDateTime(LocalDateTime endDateTime) {
+        this.endDateTime = endDateTime;
+    }
 
     public AttendanceStatus getAttendanceStatus() {
         return attendanceStatus;

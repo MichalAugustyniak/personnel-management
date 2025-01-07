@@ -9,12 +9,12 @@ public class UserSchedule {
     @EmbeddedId
     private UserScheduleId id = new UserScheduleId();
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @MapsId("userId")
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @MapsId("scheduleId")
     @JoinColumn(name = "schedule_id")
     private Schedule schedule;

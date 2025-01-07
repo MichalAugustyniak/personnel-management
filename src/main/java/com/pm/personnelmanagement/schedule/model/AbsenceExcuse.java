@@ -14,7 +14,7 @@ public class AbsenceExcuse {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "absenceExcuse")
     private Set<Attendance> attendances = new HashSet<>();
     @JdbcTypeCode(Types.VARCHAR)
     private UUID uuid;
