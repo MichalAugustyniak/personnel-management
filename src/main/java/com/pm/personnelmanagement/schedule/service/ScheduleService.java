@@ -14,4 +14,6 @@ public interface ScheduleService {
     ScheduleDTO getActiveSchedule(UUID uuid);
 
     ScheduleMetaListDTO getSchedules(FetchSchedulesFiltersDTO filters);
+
+    ScheduleDTO getSchedule(UUID uuid);
 }

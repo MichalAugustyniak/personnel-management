@@ -55,4 +55,10 @@ public class DefaultScheduleController implements ScheduleController {
                 Optional.ofNullable(pageNumber)
         ));
     }
+
+    @GetMapping("/{uuid}")
+    @Override
+    public ScheduleDTO getSchedule(@PathVariable UUID uuid) {
+        return scheduleService.getSchedule(uuid);
+    }
 }

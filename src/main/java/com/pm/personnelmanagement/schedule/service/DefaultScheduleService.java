@@ -186,4 +186,11 @@ public class DefaultScheduleService implements ScheduleService {
                 )).toList()
         );
     }
+
+    @Override
+    public ScheduleDTO getSchedule(UUID uuid) {
+        Schedule schedule = scheduleRepository.findByUuid(uuid)
+                .orElseThrow(() -> new ScheduleNotFoundException(String.format("Schedule of uuid %s not found", uuid.toString())));
+        return ScheduleMapper.map(schedule);
+    }
 }

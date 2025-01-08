@@ -20,4 +20,6 @@ public interface ScheduleController {
             Integer pageSize,
             Integer pageNumber
     );
+
+    ScheduleDTO getSchedule(UUID uuid);
 }
