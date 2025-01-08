@@ -1,7 +1,6 @@
 package com.pm.personnelmanagement.schedule.service;
 
 import com.pm.personnelmanagement.schedule.dto.*;
-import org.springframework.data.domain.Page;
 
 import java.util.UUID;
 
@@ -14,5 +13,5 @@ public interface ScheduleService {
 
     ScheduleDTO getActiveSchedule(UUID uuid);
 
-    Page<ScheduleUUIDDTO> getSchedules(FetchSchedulesFiltersDTO filters);
+    ScheduleMetaListDTO getSchedules(FetchSchedulesFiltersDTO filters);
 }

@@ -7,7 +7,7 @@ public record WorkBreakDTO(
         UUID uuid,
         LocalDateTime startDateTime,
         LocalDateTime endDateTime,
-        UUID scheduleUUID,
+        UUID scheduleDayUUID,
         boolean isPaid
 ) {
 }

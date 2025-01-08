@@ -17,13 +17,14 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.HashSet;
+import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@SpringBootTest
 @Transactional
+@SpringBootTest
 class DefaultScheduleServiceTest {
 
     @Autowired
@@ -58,9 +59,9 @@ class DefaultScheduleServiceTest {
         user.setAvatarUUID(UUID.randomUUID());
         user.setActive(true);
         user.setLastLoginAt(LocalDateTime.now());
-        user.setIdentity_id("test_identity");
+        Random random = new Random();
+        user.setIdentity_id("test_identity" + random.nextInt(1000));
         userRepository.save(user);
-        System.out.println("users saved");
         Set<UUID> uuids = new HashSet<>();
         uuids.add(uuid);
         Set<CreateScheduleDayDTO> days = new HashSet<>();

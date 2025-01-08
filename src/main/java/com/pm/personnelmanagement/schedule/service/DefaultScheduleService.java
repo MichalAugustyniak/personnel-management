@@ -1,6 +1,10 @@
 package com.pm.personnelmanagement.schedule.service;
 
+import com.pm.personnelmanagement.file.exception.NotImplementedException;
 import com.pm.personnelmanagement.schedule.dto.*;
+import com.pm.personnelmanagement.schedule.exception.ScheduleNotFoundException;
+import com.pm.personnelmanagement.schedule.exception.WorkBreakNotFound;
+import com.pm.personnelmanagement.schedule.mapper.ScheduleMapper;
 import com.pm.personnelmanagement.schedule.model.Schedule;
 import com.pm.personnelmanagement.schedule.model.ScheduleDay;
 import com.pm.personnelmanagement.schedule.model.UserSchedule;
@@ -11,7 +15,10 @@ import com.pm.personnelmanagement.user.exception.UserNotFoundException;
 import com.pm.personnelmanagement.user.model.User;
 import com.pm.personnelmanagement.user.repository.UserRepository;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -51,6 +58,7 @@ public class DefaultScheduleService implements ScheduleService {
          */
         Schedule schedule = new Schedule();
         schedule.setUuid(UUID.randomUUID());
+        schedule.setName(dto.name());
         schedule.setDescription(dto.description());
         schedule.setEnableHolidayAssignments(dto.enableHolidayAssignments());
         schedule.setEnableWorkingSaturdays(dto.enableWorkingSaturdays());
@@ -88,22 +96,94 @@ public class DefaultScheduleService implements ScheduleService {
     }
 
     @Override
+    @Transactional
     public void updateSchedule(UpdateScheduleDTO dto) {
-
+        Schedule schedule = scheduleRepository.findByUuid(dto.scheduleUUID())
+                .orElseThrow(() -> new ScheduleNotFoundException(
+                        String.format("Schedule of uuid %s not found", dto.scheduleUUID())
+                ));
+        Set<ScheduleDay> scheduleDays = schedule.getScheduleDays();
+        dto.schedule().existingScheduleDays().forEach(existingScheduleDay -> {
+            ScheduleDay scheduleDay = scheduleDays.stream()
+                    .filter(filteredScheduleDay ->
+                            filteredScheduleDay.getUuid().equals(existingScheduleDay.scheduleDayUUID()))
+                    .findFirst()
+                    .orElseThrow(() -> new ScheduleNotFoundException(
+                            String.format("Scheduled day of uuid %s not found", existingScheduleDay.scheduleDayUUID().toString())
+                    ));
+            existingScheduleDay.scheduleDay().startDateTime().ifPresent(scheduleDay::setStartDateTime);
+            existingScheduleDay.scheduleDay().endDateTime().ifPresent(scheduleDay::setEndDateTime);
+            Set<WorkBreak> workBreaks = scheduleDay.getWorkBreaks();
+            existingScheduleDay.scheduleDay().workBreaks().forEach(workBreak -> {
+                WorkBreak workBreak1 = workBreaks.stream()
+                        .filter(filteredWorkBreak ->
+                                filteredWorkBreak.getUuid().equals(workBreak.workBreakUUID()))
+                        .findFirst()
+                        .orElseThrow(() -> new WorkBreakNotFound(
+                                String.format("Work break of uuid %s not found", workBreak.workBreakUUID())
+                        ));
+                workBreak.workBreak().startDateTime().ifPresent(workBreak1::setStartDateTime);
+                workBreak.workBreak().endDateTime().ifPresent(workBreak1::setEndDateTime);
+                workBreak.workBreak().isPaid().ifPresent(workBreak1::setPaid);
+            });
+        });
+        dto.schedule().maxWorkingHoursPerDay().ifPresent(schedule::setMaxWorkingHoursPerDay);
+        dto.schedule().description().ifPresent(schedule::setDescription);
+        dto.schedule().name().ifPresent(schedule::setName);
+        dto.schedule().enableHolidayAssignments().ifPresent(schedule::setEnableHolidayAssignments);
+        dto.schedule().enableWorkingSaturdays().ifPresent(schedule::setEnableWorkingSaturdays);
+        dto.schedule().enableWorkingSundays().ifPresent(schedule::setEnableWorkingSundays);
+        // todo: validate the schedule
+        scheduleRepository.save(schedule);
     }
 
     @Override
     public void deleteSchedule(UUID uuid) {
-
+        throw new NotImplementedException("Delete not implemented");
     }
 
     @Override
     public ScheduleDTO getActiveSchedule(UUID uuid) {
-        return null;
+        User user = userRepository.findByUuid(uuid).orElseThrow(
+                () -> new UserNotFoundException(String.format("User of uuid %s not found", uuid))
+        );
+        UserSchedule userSchedule = userScheduleRepository.findByIsActiveAndUser(true, user)
+                .orElseThrow(() -> new ScheduleNotFoundException("Active schedule not found"));
+        Schedule schedule = userSchedule.getSchedule();
+        return ScheduleMapper.map(schedule);
     }
 
     @Override
-    public Page<ScheduleUUIDDTO> getSchedules(FetchSchedulesFiltersDTO filters) {
-        return null;
+    public ScheduleMetaListDTO getSchedules(FetchSchedulesFiltersDTO filters) {
+        int pageNumber = filters.pageNumber().orElse(0);
+        int pageSize = filters.pageSize().orElse(10);
+        Specification<Schedule> specification = Specification.where(null);
+        filters.userUUID().ifPresent(userUUID -> {
+            User user = userRepository.findByUuid(userUUID).orElseThrow(() -> new UserNotFoundException(String.format("User of uuid %s not found", userUUID)));
+            Specification<Schedule> hasUserUUID = (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("user").get("id"), user.getId());
+            specification.and(hasUserUUID);
+        });
+        filters.isActive().ifPresent(active -> {
+            Specification<Schedule> isActive = (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("active"), active);
+            specification.and(isActive);
+        });
+
+        Page<Schedule> schedules = scheduleRepository.findAll(specification, PageRequest.of(pageNumber, pageSize));
+        return new ScheduleMetaListDTO(
+                schedules.getTotalElements(),
+                schedules.getTotalPages(),
+                schedules.getNumber(),
+                schedules.getNumberOfElements(),
+                schedules.getSize(),
+                schedules.get().map(schedule -> new ScheduleMetaDTO(
+                        schedule.getUuid(),
+                        schedule.getName(),
+                        schedule.getDescription(),
+                        schedule.getMaxWorkingHoursPerDay(),
+                        schedule.getEnableHolidayAssignments(),
+                        schedule.getEnableWorkingSaturdays(),
+                        schedule.getEnableWorkingSundays()
+                )).toList()
+        );
     }
 }

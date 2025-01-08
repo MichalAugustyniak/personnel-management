@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
+import java.util.Optional;
 
 @Repository
 public interface UserScheduleRepository extends JpaRepository<UserSchedule, UserScheduleId>, JpaSpecificationExecutor<UserSchedule> {
@@ -18,4 +19,5 @@ public interface UserScheduleRepository extends JpaRepository<UserSchedule, User
     @Transactional
     @Query("UPDATE UserSchedule us SET us.isActive = :isActive WHERE us.user IN :users")
     int updateIsActiveUserIn(boolean isActive, Collection<User> users);
+    Optional<UserSchedule> findByIsActiveAndUser(boolean isActive, User user);
 }
