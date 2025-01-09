@@ -16,4 +16,10 @@ public interface ScheduleService {
     ScheduleMetaListDTO getSchedules(FetchSchedulesFiltersDTO filters);
 
     ScheduleDTO getSchedule(UUID uuid);
+
+    void attachUsersToSchedule(AttachUsersToScheduleDTO dto);
+
+    void detachUsersFromSchedule(DetachUsersFromScheduleDTO dto);
+
+    ScheduleDTO getActiveScheduleByUser(UUID userUUID);
 }

@@ -22,4 +22,10 @@ public interface ScheduleController {
     );
 
     ResponseEntity<ScheduleDTO> getSchedule(UUID uuid);
+
+    ResponseEntity<Void> attachUsersToSchedule(UUID scheduleUUID, AttachUsersToScheduleRequest request);
+
+    ResponseEntity<Void> detachUsersFromSchedule(UUID scheduleUUID, DetachUsersFromScheduleRequest request);
+
+    ResponseEntity<ScheduleDTO> getActiveScheduleByUser(UUID userUUID);
 }

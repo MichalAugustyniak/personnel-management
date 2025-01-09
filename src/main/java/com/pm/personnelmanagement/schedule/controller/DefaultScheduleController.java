@@ -67,4 +67,40 @@ public class DefaultScheduleController implements ScheduleController {
     public ResponseEntity<ScheduleDTO> getSchedule(@PathVariable UUID uuid) {
         return ResponseEntity.ok(scheduleService.getSchedule(uuid));
     }
+
+    @PostMapping("/{scheduleUUID}/users")
+    @Override
+    public ResponseEntity<Void> attachUsersToSchedule(
+            @PathVariable UUID scheduleUUID,
+            @RequestBody AttachUsersToScheduleRequest request
+    ) {
+        scheduleService.attachUsersToSchedule(
+                new AttachUsersToScheduleDTO(
+                        scheduleUUID,
+                        request.userUUIDs()
+                )
+        );
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{scheduleUUID}/users")
+    @Override
+    public ResponseEntity<Void> detachUsersFromSchedule(
+            @PathVariable UUID scheduleUUID,
+            @RequestBody DetachUsersFromScheduleRequest request
+    ) {
+        scheduleService.detachUsersFromSchedule(
+                new DetachUsersFromScheduleDTO(
+                        scheduleUUID,
+                        request.userUUIDs()
+                )
+        );
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @GetMapping("/active")
+    @Override
+    public ResponseEntity<ScheduleDTO> getActiveScheduleByUser(@RequestParam UUID userUUID) {
+        return ResponseEntity.ok(scheduleService.getActiveScheduleByUser(userUUID));
+    }
 }

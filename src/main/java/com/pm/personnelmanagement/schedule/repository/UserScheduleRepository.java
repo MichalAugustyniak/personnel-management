@@ -1,5 +1,6 @@
 package com.pm.personnelmanagement.schedule.repository;
 
+import com.pm.personnelmanagement.schedule.model.Schedule;
 import com.pm.personnelmanagement.schedule.model.UserSchedule;
 import com.pm.personnelmanagement.schedule.model.UserScheduleId;
 import com.pm.personnelmanagement.user.model.User;
@@ -21,4 +22,6 @@ public interface UserScheduleRepository extends JpaRepository<UserSchedule, User
     int updateIsActiveUserIn(boolean isActive, Collection<User> users);
 
     Optional<UserSchedule> findByIsActiveAndUser(boolean isActive, User user);
+
+    void deleteByScheduleAndUserIn(Schedule schedule, Collection<User> users);
 }
