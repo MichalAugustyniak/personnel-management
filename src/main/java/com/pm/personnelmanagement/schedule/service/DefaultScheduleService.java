@@ -270,7 +270,9 @@ public class DefaultScheduleService implements ScheduleService {
                             Optional.ofNullable(attendance.getAttendanceStatus())
                                     .isEmpty())
                     .findAny()
-                    .orElseThrow(() -> new CannotDeleteSchedule("The schedule cannot be deleted: past attendance records exist"));
+                    .ifPresent((attendance) -> {
+                        throw new CannotDeleteSchedule("The schedule cannot be deleted: past attendance records exist");
+                    });
         }
         scheduleRepository.delete(schedule);
     }
