@@ -9,6 +9,7 @@ public record ScheduleDayDTO(
         UUID scheduleUUID,
         LocalDateTime startDateTime,
         LocalDateTime endDateTime,
+        UUID shiftTypeUUID,
         Set<WorkBreakDTO> workBreaks
 ) {
 }

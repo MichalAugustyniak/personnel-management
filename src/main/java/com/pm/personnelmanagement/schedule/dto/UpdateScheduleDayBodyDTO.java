@@ -1,12 +1,15 @@
 package com.pm.personnelmanagement.schedule.dto;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 public record UpdateScheduleDayBodyDTO(
-        Optional<LocalDateTime> startDateTime,
-        Optional<LocalDateTime> endDateTime,
-        Set<UpdateWorkBreakDTO> workBreaks
+        LocalDateTime startDateTime,
+        LocalDateTime endDateTime,
+        UUID shiftTypeUUID,
+        Set<UpdateWorkBreakDTO> existingWorkBreaks,
+        Set<CreateWorkBreakDTO> newWorkBreaks,
+        Set<UUID> deletedWorkBreaks
 ) {
 }

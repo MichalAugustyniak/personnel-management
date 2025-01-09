@@ -18,9 +18,9 @@ public class Schedule {
     private UUID uuid;
     private String name;
     private String description;
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "schedule")
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "schedule", orphanRemoval = true)
     private Set<ScheduleDay> scheduleDays = new HashSet<>();
-    @OneToMany(mappedBy = "schedule", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "schedule", cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     private Set<UserSchedule> userSchedules = new HashSet<>();
     private Integer maxWorkingHoursPerDay;
     private Boolean enableHolidayAssignments;

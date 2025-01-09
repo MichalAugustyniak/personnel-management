@@ -7,9 +7,9 @@ public record CreateScheduleDTO(
         String name,
         String description,
         int maxWorkingHoursPerDay,
-        Boolean enableHolidayAssignments,
-        Boolean enableWorkingSaturdays,
-        Boolean enableWorkingSundays,
+        boolean enableHolidayAssignments,
+        boolean enableWorkingSaturdays,
+        boolean enableWorkingSundays,
         Set<UUID> userUUIDList,
         Set<CreateScheduleDayDTO> scheduleDays
 ) {

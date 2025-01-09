@@ -13,7 +13,7 @@ public class AbsenceExcuseStatus {
     private Long id;
     private String name;
     private String description;
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "absenceExcuseStatus")
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "absenceExcuseStatus", orphanRemoval = true)
     private Set<DetailedAbsenceExcuseStatus> detailedAbsenceExcuseStatuses = new HashSet<>();
 
     public Long getId() {

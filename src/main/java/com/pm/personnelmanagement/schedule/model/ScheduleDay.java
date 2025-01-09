@@ -15,14 +15,47 @@ public class ScheduleDay {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(nullable = false, unique = true)
     @JdbcTypeCode(Types.VARCHAR)
     private UUID uuid;
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH}, fetch = FetchType.LAZY)
     private Schedule schedule;
+    @Column(nullable = false)
     private LocalDateTime startDateTime;
+    @Column(nullable = false)
     private LocalDateTime endDateTime;
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "scheduleDay")
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "scheduleDay", orphanRemoval = true)
     private Set<WorkBreak> workBreaks = new HashSet<>();
+    @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH}, fetch = FetchType.LAZY)
+    private ShiftType shiftType;
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "scheduleDay", orphanRemoval = true)
+    private Set<Substitution> substitutions = new HashSet<>();
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "scheduleDay", orphanRemoval = true)
+    private Set<Attendance> attendances = new HashSet<>();
+
+    public Set<Attendance> getAttendances() {
+        return attendances;
+    }
+
+    public void setAttendances(Set<Attendance> attendances) {
+        this.attendances = attendances;
+    }
+
+    public ShiftType getShiftType() {
+        return shiftType;
+    }
+
+    public void setShiftType(ShiftType shiftType) {
+        this.shiftType = shiftType;
+    }
+
+    public Set<Substitution> getSubstitutions() {
+        return substitutions;
+    }
+
+    public void setSubstitutions(Set<Substitution> substitutions) {
+        this.substitutions = substitutions;
+    }
 
     public LocalDateTime getStartDateTime() {
         return startDateTime;

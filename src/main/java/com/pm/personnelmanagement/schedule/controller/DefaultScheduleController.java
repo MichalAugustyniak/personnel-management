@@ -2,9 +2,10 @@ package com.pm.personnelmanagement.schedule.controller;
 
 import com.pm.personnelmanagement.schedule.dto.*;
 import com.pm.personnelmanagement.schedule.service.ScheduleService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -18,47 +19,52 @@ public class DefaultScheduleController implements ScheduleController {
 
     @PostMapping
     @Override
-    public ScheduleUUIDDTO createSchedule(@RequestBody CreateScheduleDTO dto) {
-        return new ScheduleUUIDDTO(scheduleService.createSchedule(dto));
+    public ResponseEntity<ScheduleUUIDDTO> createSchedule(@RequestBody CreateScheduleDTO dto) {
+        return new ResponseEntity<>(new ScheduleUUIDDTO(
+                scheduleService.createSchedule(dto)
+        ), HttpStatus.CREATED);
     }
 
     @PatchMapping("/{uuid}")
     @Override
-    public void updateSchedule(@PathVariable UUID uuid, @RequestBody UpdateScheduleBodyDTO dto) {
+    public ResponseEntity<Void> updateSchedule(@PathVariable UUID uuid, @RequestBody UpdateScheduleBodyDTO dto) {
         scheduleService.updateSchedule(new UpdateScheduleDTO(uuid, dto));
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @DeleteMapping("/{uuid}")
     @Override
-    public void deleteSchedule(@PathVariable UUID uuid) {
+    public ResponseEntity<Void> deleteSchedule(@PathVariable UUID uuid) {
         scheduleService.deleteSchedule(uuid);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @GetMapping("/active/{uuid}")
     @Override
-    public ScheduleDTO getActiveSchedule(@PathVariable UUID uuid) {
-        return scheduleService.getActiveSchedule(uuid);
+    public ResponseEntity<ScheduleDTO> getActiveSchedule(@PathVariable UUID uuid) {
+        return ResponseEntity.ok(scheduleService.getActiveSchedule(uuid));
     }
 
     @GetMapping
     @Override
-    public ScheduleMetaListDTO getSchedules(
+    public ResponseEntity<ScheduleMetaListDTO> getSchedules(
             @RequestParam(required = false) UUID userUUID,
             @RequestParam(required = false) Boolean isActive,
             @RequestParam(required = false) Integer pageSize,
             @RequestParam(required = false) Integer pageNumber
     ) {
-        return scheduleService.getSchedules(new FetchSchedulesFiltersDTO(
-                Optional.ofNullable(userUUID),
-                Optional.ofNullable(isActive),
-                Optional.ofNullable(pageSize),
-                Optional.ofNullable(pageNumber)
-        ));
+        return ResponseEntity.ok(scheduleService.getSchedules(
+                new FetchSchedulesFiltersDTO(
+                        userUUID,
+                        isActive,
+                        pageSize,
+                        pageNumber
+                )));
     }
 
     @GetMapping("/{uuid}")
     @Override
-    public ScheduleDTO getSchedule(@PathVariable UUID uuid) {
-        return scheduleService.getSchedule(uuid);
+    public ResponseEntity<ScheduleDTO> getSchedule(@PathVariable UUID uuid) {
+        return ResponseEntity.ok(scheduleService.getSchedule(uuid));
     }
 }

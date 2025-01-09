@@ -13,7 +13,7 @@ public class AttendanceStatus {
     private Long id;
     private String name;    // Obecność, Nieobecność nieusprawiedliwiona, Nieobecność usprawiedliwiona, Urlop bezpłatny, Urlop płatny, Urlop chorobowy, L4 etc.
     private String description;
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "attendanceStatus")
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "attendanceStatus", orphanRemoval = true)
     private Set<Attendance> attendances = new HashSet<>();
 
     public Long getId() {

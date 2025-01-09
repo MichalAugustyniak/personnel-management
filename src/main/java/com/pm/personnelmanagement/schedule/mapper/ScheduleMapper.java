@@ -22,6 +22,7 @@ public class ScheduleMapper {
                         scheduleDay.getSchedule().getUuid(),
                         scheduleDay.getStartDateTime(),
                         scheduleDay.getEndDateTime(),
+                        scheduleDay.getShiftType().getUuid(),
                         scheduleDay.getWorkBreaks().stream().map(workBreak -> new WorkBreakDTO(
                                 workBreak.getUuid(),
                                 workBreak.getStartDateTime(),

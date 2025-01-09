@@ -20,7 +20,7 @@ public class WorkBreak {
     private LocalDateTime startDateTime;
     @Column(nullable = false)
     private LocalDateTime endDateTime;
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH}, fetch = FetchType.LAZY)
     private ScheduleDay scheduleDay;
     @Column(nullable = false)
     private Boolean isPaid;

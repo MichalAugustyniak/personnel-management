@@ -19,5 +19,6 @@ public interface UserScheduleRepository extends JpaRepository<UserSchedule, User
     @Transactional
     @Query("UPDATE UserSchedule us SET us.isActive = :isActive WHERE us.user IN :users")
     int updateIsActiveUserIn(boolean isActive, Collection<User> users);
+
     Optional<UserSchedule> findByIsActiveAndUser(boolean isActive, User user);
 }

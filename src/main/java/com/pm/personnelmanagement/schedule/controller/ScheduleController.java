@@ -1,25 +1,25 @@
 package com.pm.personnelmanagement.schedule.controller;
 
 import com.pm.personnelmanagement.schedule.dto.*;
+import org.springframework.http.ResponseEntity;
 
-import java.util.Optional;
 import java.util.UUID;
 
 public interface ScheduleController {
-    ScheduleUUIDDTO createSchedule(CreateScheduleDTO dto);
+    ResponseEntity<ScheduleUUIDDTO> createSchedule(CreateScheduleDTO dto);
 
-    void updateSchedule(UUID uuid, UpdateScheduleBodyDTO dto);
+    ResponseEntity<Void> updateSchedule(UUID uuid, UpdateScheduleBodyDTO dto);
 
-    void deleteSchedule(UUID uuid);
+    ResponseEntity<Void> deleteSchedule(UUID uuid);
 
-    ScheduleDTO getActiveSchedule(UUID uuid);
+    ResponseEntity<ScheduleDTO> getActiveSchedule(UUID uuid);
 
-    ScheduleMetaListDTO getSchedules(
+    ResponseEntity<ScheduleMetaListDTO> getSchedules(
             UUID userUUID,
             Boolean isActive,
             Integer pageSize,
             Integer pageNumber
     );
 
-    ScheduleDTO getSchedule(UUID uuid);
+    ResponseEntity<ScheduleDTO> getSchedule(UUID uuid);
 }

@@ -12,12 +12,12 @@ public class DetailedAbsenceExcuseStatus {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH}, fetch = FetchType.LAZY)
     private AbsenceExcuseStatus absenceExcuseStatus;
     private String message;
     @JdbcTypeCode(Types.VARCHAR)
     private UUID uuid;
-    @OneToOne(cascade = CascadeType.ALL, mappedBy = "detailedAbsenceExcuseStatus")
+    @OneToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH}, mappedBy = "detailedAbsenceExcuseStatus")
     private AbsenceExcuse absenceExcuse;
     private Boolean isChecked;
 

@@ -22,7 +22,7 @@ public class AbsenceExcuse {
     private UUID fileUUID;
     private String name;
     private String description;
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH}, fetch = FetchType.LAZY)
     private DetailedAbsenceExcuseStatus detailedAbsenceExcuseStatus;
 
     public Long getId() {
