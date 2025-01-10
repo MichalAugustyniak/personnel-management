@@ -1,9 +1,12 @@
 package com.pm.personnelmanagement.schedule.model;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
 
+import java.sql.Types;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 @Entity
 @Table(name = "absence_excuse_statuses")
@@ -15,6 +18,16 @@ public class AbsenceExcuseStatus {
     private String description;
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "absenceExcuseStatus", orphanRemoval = true)
     private Set<DetailedAbsenceExcuseStatus> detailedAbsenceExcuseStatuses = new HashSet<>();
+    @JdbcTypeCode(Types.VARCHAR)
+    private UUID uuid;
+
+    public UUID getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(UUID uuid) {
+        this.uuid = uuid;
+    }
 
     public Long getId() {
         return id;

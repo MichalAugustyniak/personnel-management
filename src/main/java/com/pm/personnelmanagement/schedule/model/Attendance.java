@@ -6,6 +6,8 @@ import org.hibernate.annotations.JdbcTypeCode;
 
 import java.sql.Types;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -24,9 +26,24 @@ public class Attendance {
     private UUID uuid;
     private LocalDateTime startDateTime;
     private LocalDateTime endDateTime;
-    @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH}, fetch = FetchType.LAZY)
-    private AbsenceExcuse absenceExcuse;
+    //@ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH}, fetch = FetchType.LAZY)
+    //private AbsenceExcuse absenceExcuse;
+    @ManyToMany
+    @JoinTable(
+            name = "attendance_absence_excuse", // nazwa tabeli łączącej
+            joinColumns = @JoinColumn(name = "attendance_id"), // klucz obcy do encji User
+            inverseJoinColumns = @JoinColumn(name = "absence_excuse_id") // klucz obcy do encji Project
+    )
+    private Set<AbsenceExcuse> absenceExcuses = new HashSet<>();
 
+    public Set<AbsenceExcuse> getAbsenceExcuses() {
+        return absenceExcuses;
+    }
+
+    public void setAbsenceExcuses(Set<AbsenceExcuse> absenceExcuses) {
+        this.absenceExcuses = absenceExcuses;
+    }
+/*
     public AbsenceExcuse getAbsenceExcuse() {
         return absenceExcuse;
     }
@@ -34,6 +51,8 @@ public class Attendance {
     public void setAbsenceExcuse(AbsenceExcuse absenceExcuse) {
         this.absenceExcuse = absenceExcuse;
     }
+
+     */
 
     public LocalDateTime getStartDateTime() {
         return startDateTime;
