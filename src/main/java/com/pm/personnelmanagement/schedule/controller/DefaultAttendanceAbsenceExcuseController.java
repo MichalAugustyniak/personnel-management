@@ -33,7 +33,7 @@ public class DefaultAttendanceAbsenceExcuseController implements AttendanceAbsen
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PostMapping("/attendance/{attendanceUUID}/absence-excuses")
+    @DeleteMapping("/attendance/{attendanceUUID}/absence-excuses")
     @Override
     public ResponseEntity<Void> detachAttendanceFromAbsenceExcuses(
             @NotNull @PathVariable UUID attendanceUUID,
