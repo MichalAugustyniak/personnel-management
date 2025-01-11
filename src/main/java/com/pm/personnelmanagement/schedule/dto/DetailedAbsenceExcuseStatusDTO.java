@@ -6,6 +6,6 @@ public record DetailedAbsenceExcuseStatusDTO(
        UUID uuid,
        String message,
        boolean isChecked,
-       AbsenceExcuseStatusDTO absenceExcuseStatus
+       UUID absenceExcuseStatusUUID
 ) {
 }

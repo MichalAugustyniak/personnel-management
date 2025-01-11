@@ -2,11 +2,9 @@ package com.pm.personnelmanagement.schedule.dto;
 
 import java.util.UUID;
 
-public record AbsenceExcuseDTO(
-        UUID uuid,
+public record UpdateAbsenceExcuseBodyDTO(
         String name,
         String description,
-        UUID fileUUID,
-        UUID detailedAbsenceExcuseStatusUUID
+        UUID fileUUID
 ) {
 }
