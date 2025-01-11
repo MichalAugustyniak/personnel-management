@@ -3,7 +3,7 @@ package com.pm.personnelmanagement.schedule.service;
 import com.pm.personnelmanagement.schedule.dto.*;
 import com.pm.personnelmanagement.schedule.exception.CannotDeleteSchedule;
 import com.pm.personnelmanagement.schedule.exception.ScheduleNotFoundException;
-import com.pm.personnelmanagement.schedule.exception.ShiftTypeNotFound;
+import com.pm.personnelmanagement.schedule.exception.ShiftTypeNotFoundException;
 import com.pm.personnelmanagement.schedule.exception.WorkBreakNotFound;
 import com.pm.personnelmanagement.schedule.mapper.ScheduleMapper;
 import com.pm.personnelmanagement.schedule.model.*;
@@ -102,7 +102,7 @@ public class DefaultScheduleService implements ScheduleService {
         Map<UUID, ShiftType> shiftTypeMap = new HashMap<>(initialCapacity);
         Set<ShiftType> shiftTypes = shiftTypeRepository.findAllByUuidIn(uuids);
         if (shiftTypes.size() != uuids.size()) {
-            throw new ShiftTypeNotFound("Some of the shift types might not exist");
+            throw new ShiftTypeNotFoundException("Some of the shift types might not exist");
         }
         shiftTypes.forEach(shiftType -> shiftTypeMap.put(shiftType.getUuid(), shiftType));
         return shiftTypeMap;
