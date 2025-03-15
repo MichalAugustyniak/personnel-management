@@ -10,6 +10,6 @@ public record ShiftTypesDTO(
         int number,
         int numberOfElements,
         int size,
-        @NotNull Set<@NotNull ShiftTypeDTO> shiftTypes
+        @NotNull Set<@NotNull ShiftTypeDTO> content
 ) {
 }

@@ -26,13 +26,13 @@ public class DefaultAttendanceStatusService implements AttendanceStatusService {
     }
 
     @Override
-    public AttendanceStatusDTO getAttendanceStatus(@NotNull @Valid AttendanceStatusRequest dto) {
+    public AttendanceStatusResponse getAttendanceStatus(@NotNull @Valid AttendanceStatusRequest dto) {
         AttendanceStatus attendanceStatus = attendanceStatusUtils.fetchAttendanceStatus(dto.uuid());
         return AttendanceStatusMapper.map(attendanceStatus);
     }
 
     @Override
-    public AttendanceStatusesDTO getAttendanceStatuses(@NotNull @Valid FetchAttendanceStatusesFiltersDTO dto) {
+    public AttendanceStatusesResponse getAttendanceStatuses(@NotNull @Valid FetchAttendanceStatusesFiltersDTO dto) {
         int pageNumber = Optional.ofNullable(dto.pageNumber()).orElse(0);
         int pageSize = Optional.ofNullable(dto.pageSize()).orElse(10);
         Page<AttendanceStatus> attendanceStatuses = attendanceStatusRepository.findAll(PageRequest.of(pageNumber, pageSize));
@@ -40,14 +40,15 @@ public class DefaultAttendanceStatusService implements AttendanceStatusService {
     }
 
     @Override
-    public CreateAttendanceStatusResponse createAttendanceStatus(@NotNull @Valid CreateAttendanceStatusDTO dto) {
+    public AttendanceStatusCreationResponse createAttendanceStatus(@NotNull @Valid AttendanceStatusCreationRequest dto) {
         UUID uuid = UUID.randomUUID();
         AttendanceStatus attendanceStatus = new AttendanceStatus();
         attendanceStatus.setName(dto.name());
         attendanceStatus.setDescription(dto.description());
         attendanceStatus.setUuid(uuid);
+        attendanceStatus.setExcusable(dto.isExcusable());
         attendanceStatusRepository.save(attendanceStatus);
-        return new CreateAttendanceStatusResponse(uuid);
+        return new AttendanceStatusCreationResponse(uuid);
     }
 
     @Override

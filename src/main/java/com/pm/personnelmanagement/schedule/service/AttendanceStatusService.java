@@ -3,11 +3,11 @@ package com.pm.personnelmanagement.schedule.service;
 import com.pm.personnelmanagement.schedule.dto.*;
 
 public interface AttendanceStatusService {
-    AttendanceStatusDTO getAttendanceStatus(AttendanceStatusRequest dto);
+    AttendanceStatusResponse getAttendanceStatus(AttendanceStatusRequest dto);
 
-    AttendanceStatusesDTO getAttendanceStatuses(FetchAttendanceStatusesFiltersDTO dto);
+    AttendanceStatusesResponse getAttendanceStatuses(FetchAttendanceStatusesFiltersDTO dto);
 
-    CreateAttendanceStatusResponse createAttendanceStatus(CreateAttendanceStatusDTO dto);
+    AttendanceStatusCreationResponse createAttendanceStatus(AttendanceStatusCreationRequest dto);
 
     void updateAttendanceStatus(UpdateAttendanceStatusDTO dto);
 

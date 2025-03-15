@@ -6,13 +6,13 @@ import org.springframework.http.ResponseEntity;
 import java.util.UUID;
 
 public interface AttendanceStatusController {
-    ResponseEntity<AttendanceStatusDTO> getAttendanceStatus(UUID uuid);
+    ResponseEntity<AttendanceStatusResponse> getAttendanceStatus(UUID uuid);
 
-    ResponseEntity<AttendanceStatusesDTO> getAttendanceStatuses(Integer pageNumber, Integer pageSize);
+    ResponseEntity<AttendanceStatusesResponse> getAttendanceStatuses(Integer pageNumber, Integer pageSize);
 
-    ResponseEntity<CreateAttendanceStatusResponse> createAttendanceStatus(CreateAttendanceStatusDTO dto);
+    ResponseEntity<AttendanceStatusCreationResponse> createAttendanceStatus(AttendanceStatusCreationRequest dto);
 
-    ResponseEntity<Void> updateAttendanceStatus(UUID uuid, UpdateAttendanceStatusBodyDTO dto);
+    ResponseEntity<Void> updateAttendanceStatus(UUID uuid, AttendanceStatusUpdateRequestBody body);
 
     ResponseEntity<Void> deleteAttendanceStatus(UUID uuid);
 }

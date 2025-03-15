@@ -1,22 +1,22 @@
 package com.pm.personnelmanagement.task.service;
 
+import com.pm.personnelmanagement.common.dto.PagedResponse;
 import com.pm.personnelmanagement.task.dto.*;
-import org.springframework.data.domain.Page;
-
-import java.util.UUID;
 
 public interface TaskService {
-    UUID createTask(CreateTaskDTO dto);
+    TaskCreationResponse createTask(AuthenticatedRequest<TaskCreationRequest> request);
 
-    void editTask(EditTaskDTO dto);
+    void editTask(AuthenticatedRequest<TaskUpdateRequest> request);
 
-    void deleteTask(long id);
+    void deleteTask(AuthenticatedRequest<TaskDeletionRequest> request);
 
-    TaskDTO getTaskById(long id);
+    TaskDTO getTask(AuthenticatedRequest<TaskRequest> request);
 
-    Page<TaskDTO> getAllTasks(int pageNumber, int pageSize);
+    PagedResponse<TaskDTO> getAllTasks(AuthenticatedRequest<TasksRequestFilters> request);
 
-    void assignUserToTask(UserTaskRequest request, long taskId);
+    void assignUserToTask(AuthenticatedRequest<AssignUserToTaskRequest> request);
 
-    void dismissUserFromTask(UserTaskRequest request, long taskId);
+    void dismissUserFromTask(AuthenticatedRequest<DismissUserFromTaskRequest> request);
+
+    TaskUsers getUsersByTask(TaskUsersRequest request);
 }

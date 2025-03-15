@@ -10,7 +10,8 @@ public record OvertimeHoursCreationRequest(
         @NotNull LocalDateTime endDateTime,
         @NotNull UUID approvedByUUID,
         @NotNull UUID userUUID,
-        @NotNull UUID scheduleDayUUID,
+        //@NotNull UUID scheduleDayUUID,
+        @NotNull UUID scheduleUUID,
         String description
 ) {
 }

@@ -1,11 +1,8 @@
 package com.pm.personnelmanagement.taskevent.dto;
 
-import java.time.LocalDateTime;
+import jakarta.validation.constraints.NotNull;
 
-public record TaskEventRequest(
-        String name,
-        String description,
-        LocalDateTime startDateTime,
-        LocalDateTime endDateTime
-) {
+import java.util.UUID;
+
+public record TaskEventRequest(@NotNull UUID uuid) {
 }

@@ -3,6 +3,9 @@ import SideMenuOption from "~/components/SideMenuOption";
 export interface Option {
     iconURL: string,
     label: string;
+    onClick(): void;
+    isActive: boolean;
+    id: number;
 }
 
 export interface Props {
@@ -11,7 +14,6 @@ export interface Props {
 }
 
 export default function SideMenuOptionContainer(props: Props) {
-    let key = 0;
     return (
         <>
            <div className={"flex flex-col content-center"}>
@@ -20,7 +22,14 @@ export default function SideMenuOptionContainer(props: Props) {
                </div>
                <div className={"content-center"}>
                    <ul className={"list-none space-y-2"}>
-                       { props.options.map(option => <li key={key++}><SideMenuOption iconURL={option.iconURL} label={option.label}/></li>) }
+                       { props.options.map((option, key) => <li key={key}>
+                           <SideMenuOption iconURL={option.iconURL}
+                                           label={option.label}
+                                           onClick={option.onClick}
+                                           isActive={option.isActive}
+                                           id={option.id}
+                           />
+                       </li>) }
                    </ul>
                </div>
            </div>

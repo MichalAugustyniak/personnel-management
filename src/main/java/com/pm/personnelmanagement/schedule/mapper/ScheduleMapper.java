@@ -29,8 +29,7 @@ public class ScheduleMapper {
                                 workBreak.getEndDateTime(),
                                 workBreak.getScheduleDay().getUuid(),
                                 workBreak.getPaid()
-                        )).collect(Collectors.toSet())
-                )).collect(Collectors.toSet())
+                        )).toList())).toList()
         );
     }
 }

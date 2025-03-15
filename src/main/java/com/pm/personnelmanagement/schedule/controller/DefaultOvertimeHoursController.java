@@ -55,8 +55,7 @@ public class DefaultOvertimeHoursController implements OvertimeHoursController {
     public ResponseEntity<OvertimeHoursCreationResponse> createOvertimeHours(
             @NotNull @Valid @RequestBody OvertimeHoursCreationRequest request
     ) {
-        overtimeHoursService.createOvertimeHours(request);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return new ResponseEntity<>(overtimeHoursService.createOvertimeHours(request), HttpStatus.CREATED);
     }
 
     @PatchMapping("/{uuid}")

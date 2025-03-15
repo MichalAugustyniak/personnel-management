@@ -1,5 +1,7 @@
 package com.pm.personnelmanagement.schedule.dto;
 
+import jakarta.validation.constraints.NotNull;
+
 import java.util.Set;
 import java.util.UUID;
 
@@ -10,8 +12,8 @@ public record UpdateScheduleBodyDTO(
         Boolean enableHolidayAssignments,
         Boolean enableWorkingSaturdays,
         Boolean enableWorkingSundays,
-        Set<UpdateScheduleDayDTO> existingScheduleDays,
-        Set<CreateScheduleDayDTO> newScheduleDays,
-        Set<UUID> deletedScheduleDays
+        Set<@NotNull UpdateScheduleDayDTO> existingScheduleDays,
+        Set<@NotNull CreateScheduleDayDTO> newScheduleDays,
+        Set<@NotNull UUID> deletedScheduleDays
 ) {
 }

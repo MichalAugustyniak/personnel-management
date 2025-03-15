@@ -8,7 +8,8 @@ public record OvertimeHoursRequestFilters(
         Integer pageSize,
         UUID approvedByUUID,
         UUID userUUID,
-        UUID scheduleDayUUID,
+        //UUID scheduleDayUUID,
+        UUID scheduleUUID,
         LocalDateTime startDateTime,
         LocalDateTime endDateTime
 ) {

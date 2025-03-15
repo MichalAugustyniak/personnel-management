@@ -1,20 +1,27 @@
 package com.pm.personnelmanagement.taskevent.controller;
 
-import com.pm.personnelmanagement.taskevent.dto.CreateTaskEventResponse;
-import com.pm.personnelmanagement.taskevent.dto.TaskEventDTO;
-import com.pm.personnelmanagement.taskevent.dto.TaskEventEditRequest;
-import com.pm.personnelmanagement.taskevent.dto.TaskEventRequest;
+import com.pm.personnelmanagement.common.dto.PagedResponse;
+import com.pm.personnelmanagement.taskevent.dto.*;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 
+import java.time.LocalDateTime;
+import java.util.UUID;
+
 public interface TaskEventController {
-    ResponseEntity<CreateTaskEventResponse> createTaskEvent(TaskEventRequest request);
+    ResponseEntity<TaskEventCreationResponse> createTaskEvent(TaskEventCreationRequest request);
 
-    ResponseEntity<Void> editTaskEvent(long id, TaskEventEditRequest request);
+    ResponseEntity<Void> editTaskEvent(UUID uuid, TaskEventUpdateRequestBody request);
 
-    ResponseEntity<Void> deleteTaskEvent(long id);
+    ResponseEntity<Void> deleteTaskEvent(UUID uuid);
 
-    ResponseEntity<TaskEventDTO> getTaskEventById(long id);
+    ResponseEntity<TaskEventDTO> getTaskEventById(UUID uuid);
 
-    ResponseEntity<Page<TaskEventDTO>> getAllTaskEvents(int pageNumber, int pageSize);
+    ResponseEntity<PagedResponse<TaskEventDTO>> getAllTaskEvents(String like,
+                                                                 LocalDateTime from,
+                                                                 LocalDateTime to,
+                                                                 String user,
+                                                                 String createdBy,
+                                                                 int pageNumber,
+                                                                 int pageSize);
 }

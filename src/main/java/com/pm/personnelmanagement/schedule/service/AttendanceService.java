@@ -1,13 +1,12 @@
 package com.pm.personnelmanagement.schedule.service;
 
 import com.pm.personnelmanagement.schedule.dto.*;
-
-import java.util.UUID;
+import com.pm.personnelmanagement.task.dto.AuthenticatedRequest;
 
 public interface AttendanceService {
-    AttendanceDTO getAttendance(UUID uuid);
-    AttendanceListDTO getAttendances(FetchAttendancesFiltersDTO filters);
-    UUID createAttendance(CreateAttendanceDTO dto);
-    void updateAttendance(UpdateAttendanceDTO dto);
-    void deleteAttendance(UUID uuid);
+    AttendanceResponse getAttendance(AuthenticatedRequest<AttendanceRequest> request);
+    AttendancesResponse getAttendances(AuthenticatedRequest<AttendancesRequest> request);
+    AttendanceCreationResponse createAttendance(AttendanceCreationRequest request);
+    void updateAttendance(AuthenticatedRequest<AttendanceUpdateRequest> request);
+    void deleteAttendance(AuthenticatedRequest<AttendanceDeleteRequest> request);
 }

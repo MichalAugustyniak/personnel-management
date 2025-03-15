@@ -14,12 +14,16 @@ public class AttendanceStatus {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(nullable = false)
     private String name;    // Obecność, Nieobecność nieusprawiedliwiona, Nieobecność usprawiedliwiona, Urlop bezpłatny, Urlop płatny, Urlop chorobowy, L4 etc.
     private String description;
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "attendanceStatus", orphanRemoval = true)
+    @OneToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY, mappedBy = "attendanceStatus")
     private Set<Attendance> attendances = new HashSet<>();
     @JdbcTypeCode(Types.VARCHAR)
+    @Column(nullable = false)
     private UUID uuid;
+    @Column(nullable = false)
+    private Boolean isExcusable;
 
     public UUID getUuid() {
         return uuid;
@@ -59,5 +63,13 @@ public class AttendanceStatus {
 
     public void setAttendances(Set<Attendance> attendances) {
         this.attendances = attendances;
+    }
+
+    public Boolean getExcusable() {
+        return isExcusable;
+    }
+
+    public void setExcusable(Boolean excusable) {
+        isExcusable = excusable;
     }
 }

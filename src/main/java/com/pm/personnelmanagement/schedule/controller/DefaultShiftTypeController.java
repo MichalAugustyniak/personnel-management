@@ -6,10 +6,12 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
+@Validated
 @RestController
 @RequestMapping("/api/shift-types")
 public class DefaultShiftTypeController implements ShiftTypeController{
@@ -21,7 +23,7 @@ public class DefaultShiftTypeController implements ShiftTypeController{
 
     @GetMapping("/{uuid}")
     @Override
-    public ResponseEntity<ShiftTypeDTO> getShiftType(@NotNull @PathVariable UUID uuid) {
+    public ResponseEntity<ShiftTypeDTO> getShiftType(@PathVariable UUID uuid) {
         return ResponseEntity.ok(shiftTypeService.getShiftType(
                 new ShiftTypeRequest(uuid)
         ));
@@ -40,16 +42,16 @@ public class DefaultShiftTypeController implements ShiftTypeController{
 
     @PostMapping
     @Override
-    public ResponseEntity<ShiftTypeCreationResponse> createShiftType(@NotNull @Valid @RequestBody ShiftTypeCreationRequest dto) {
-        shiftTypeService.createShiftType(dto);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+    public ResponseEntity<ShiftTypeCreationResponse> createShiftType(@RequestBody ShiftTypeCreationRequest dto) {
+        System.out.println(dto);
+        return new ResponseEntity<>(shiftTypeService.createShiftType(dto), HttpStatus.CREATED);
     }
 
     @PatchMapping("/{uuid}")
     @Override
     public ResponseEntity<Void> updateShiftType(
             @PathVariable UUID uuid,
-            @NotNull @Valid @RequestBody ShiftTypeUpdateRequestBody dto
+            @RequestBody ShiftTypeUpdateRequestBody dto
     ) {
         shiftTypeService.updateShiftType(new ShiftTypeUpdateRequest(uuid, dto));
         return new ResponseEntity<>(HttpStatus.OK);
@@ -57,7 +59,7 @@ public class DefaultShiftTypeController implements ShiftTypeController{
 
     @DeleteMapping("/{uuid}")
     @Override
-    public ResponseEntity<Void> deleteFilter(@NotNull @PathVariable UUID uuid) {
+    public ResponseEntity<Void> deleteFilter(@PathVariable UUID uuid) {
         shiftTypeService.deleteFilter(new ShiftTypeDeletionRequest(uuid));
         return new ResponseEntity<>(HttpStatus.OK);
     }

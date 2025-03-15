@@ -1,21 +1,20 @@
 package com.pm.personnelmanagement.taskevent.service;
 
-import com.pm.personnelmanagement.taskevent.dto.EditTaskEventRequest;
-import com.pm.personnelmanagement.taskevent.dto.TaskEventDTO;
-import com.pm.personnelmanagement.taskevent.dto.TaskEventRequest;
-import com.pm.personnelmanagement.taskevent.dto.TaskEventsRequest;
+import com.pm.personnelmanagement.common.dto.PagedResponse;
+import com.pm.personnelmanagement.task.dto.AuthenticatedRequest;
+import com.pm.personnelmanagement.taskevent.dto.*;
 import org.springframework.data.domain.Page;
 
 import java.util.UUID;
 
 public interface TaskEventService {
-    UUID createTaskEvent(TaskEventRequest request);
+    TaskEventCreationResponse createTaskEvent(AuthenticatedRequest<TaskEventCreationRequest> request);
 
-    void editTaskEvent(EditTaskEventRequest request);
+    void editTaskEvent(AuthenticatedRequest<TaskEventUpdateRequest> request);
 
-    void deleteTaskEvent(long id);
+    void deleteTaskEvent(AuthenticatedRequest<TaskEventDeletionRequest> request);
 
-    TaskEventDTO getTaskEventById(long id);
+    TaskEventDTO getTaskEvent(AuthenticatedRequest<TaskEventRequest> request);
 
-    Page<TaskEventDTO> getAllTaskEvents(TaskEventsRequest request);
+    PagedResponse<TaskEventDTO> getAllTaskEvents(AuthenticatedRequest<TaskEventsRequest> request);
 }

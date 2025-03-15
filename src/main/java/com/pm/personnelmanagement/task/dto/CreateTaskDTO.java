@@ -1,4 +1,6 @@
 package com.pm.personnelmanagement.task.dto;
 
-public record CreateTaskDTO(String createdBy, CreateTaskRequest task) {
+import jakarta.validation.constraints.NotNull;
+
+public record CreateTaskDTO(@NotNull String createdBy, @NotNull TaskCreationRequest task) {
 }

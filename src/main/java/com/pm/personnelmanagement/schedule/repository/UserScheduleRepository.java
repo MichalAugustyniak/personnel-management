@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.Optional;
+import java.util.Set;
 
 @Repository
 public interface UserScheduleRepository extends JpaRepository<UserSchedule, UserScheduleId>, JpaSpecificationExecutor<UserSchedule> {
@@ -24,4 +25,8 @@ public interface UserScheduleRepository extends JpaRepository<UserSchedule, User
     Optional<UserSchedule> findByIsActiveAndUser(boolean isActive, User user);
 
     void deleteByScheduleAndUserIn(Schedule schedule, Collection<User> users);
+
+    Optional<UserSchedule> findByUserAndSchedule(User user, Schedule schedule);
+
+    Set<UserSchedule> findAllByScheduleAndUserIn(Schedule schedule, Collection<User> users);
 }

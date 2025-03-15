@@ -1,32 +1,30 @@
 package com.pm.personnelmanagement.schedule.service;
 
+import com.pm.personnelmanagement.permission.exception.UnauthorizedException;
 import com.pm.personnelmanagement.schedule.dto.*;
-import com.pm.personnelmanagement.schedule.exception.AbsenceExcuseNotFoundException;
-import com.pm.personnelmanagement.schedule.exception.AttendanceNotFoundException;
-import com.pm.personnelmanagement.schedule.exception.AttendanceStatusNotFoundException;
-import com.pm.personnelmanagement.schedule.exception.ScheduleDayNotFoundException;
+import com.pm.personnelmanagement.schedule.exception.*;
 import com.pm.personnelmanagement.schedule.mapper.AttendanceMapper;
-import com.pm.personnelmanagement.schedule.model.AbsenceExcuse;
-import com.pm.personnelmanagement.schedule.model.Attendance;
-import com.pm.personnelmanagement.schedule.model.AttendanceStatus;
-import com.pm.personnelmanagement.schedule.model.ScheduleDay;
-import com.pm.personnelmanagement.schedule.repository.AbsenceExcuseRepository;
-import com.pm.personnelmanagement.schedule.repository.AttendanceRepository;
-import com.pm.personnelmanagement.schedule.repository.AttendanceStatusRepository;
-import com.pm.personnelmanagement.schedule.repository.ScheduleDayRepository;
+import com.pm.personnelmanagement.schedule.model.*;
+import com.pm.personnelmanagement.schedule.repository.*;
+import com.pm.personnelmanagement.task.dto.AuthenticatedRequest;
+import com.pm.personnelmanagement.user.constant.DefaultRoleNames;
 import com.pm.personnelmanagement.user.exception.UserNotFoundException;
 import com.pm.personnelmanagement.user.model.User;
 import com.pm.personnelmanagement.user.repository.UserRepository;
+import com.pm.personnelmanagement.user.util.UserUtils;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
+import javax.swing.text.html.Option;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
+@Validated
 @Service
 public class DefaultAttendanceService implements AttendanceService {
     private final AttendanceRepository attendanceRepository;
@@ -34,121 +32,149 @@ public class DefaultAttendanceService implements AttendanceService {
     private final AttendanceStatusRepository attendanceStatusRepository;
     private final ScheduleDayRepository scheduleDayRepository;
     private final UserRepository userRepository;
+    private final UserUtils userUtils;
+    private final UserScheduleRepository userScheduleRepository;
 
-    public DefaultAttendanceService(AttendanceRepository attendanceRepository, AbsenceExcuseRepository absenceExcuseRepository, AttendanceStatusRepository attendanceStatusRepository, ScheduleDayRepository scheduleDayRepository, UserRepository userRepository) {
+    public DefaultAttendanceService(AttendanceRepository attendanceRepository, AbsenceExcuseRepository absenceExcuseRepository, AttendanceStatusRepository attendanceStatusRepository, ScheduleDayRepository scheduleDayRepository, UserRepository userRepository, UserUtils userUtils, UserScheduleRepository userScheduleRepository) {
         this.attendanceRepository = attendanceRepository;
         this.absenceExcuseRepository = absenceExcuseRepository;
         this.attendanceStatusRepository = attendanceStatusRepository;
         this.scheduleDayRepository = scheduleDayRepository;
         this.userRepository = userRepository;
+        this.userUtils = userUtils;
+        this.userScheduleRepository = userScheduleRepository;
     }
 
     @Override
-    public AttendanceDTO getAttendance(@NotNull UUID uuid) {
-        Optional.ofNullable(uuid).orElseThrow(() -> new IllegalArgumentException("Argument UUID cannot be null"));
-        Attendance attendance = attendanceRepository.findByUuid(uuid).orElseThrow(
-                () -> new AttendanceNotFoundException(String.format("Attendance of uuid %s not found", uuid))
+    public AttendanceResponse getAttendance(AuthenticatedRequest<AttendanceRequest> request) {
+        Attendance attendance = attendanceRepository.findByUuid(request.request().uuid()).orElseThrow(
+                () -> new AttendanceNotFoundException(String.format("Attendance of uuid %s not found", request.request().uuid()))
         );
         return AttendanceMapper.map(attendance);
     }
 
     @Override
-    public AttendanceListDTO getAttendances(@NotNull FetchAttendancesFiltersDTO filters) {
-        Optional.ofNullable(filters).orElseThrow(() -> new IllegalArgumentException("Argument filters cannot be null"));
+    public AttendancesResponse getAttendances(AuthenticatedRequest<AttendancesRequest> request) {
+        User principalUser = userUtils.fetchUserByUsername(request.principalName());
+        boolean isEmployee = principalUser.getRole().getName().equals(DefaultRoleNames.EMPLOYEE);
+        boolean isManager = principalUser.getRole().getName().equals(DefaultRoleNames.MANAGER);
         Specification<Attendance> specification = Specification.where(null);
-        Optional.ofNullable(filters.absenceExcuseUUID()).ifPresent(uuid -> {
-            AbsenceExcuse absenceExcuse = absenceExcuseRepository.findByUuid(uuid).orElseThrow(
-                    () -> new AbsenceExcuseNotFoundException(String.format("Absence excuse of uuid %s not found", uuid))
-            );
-            Specification<Attendance> hasAbsenceExcuse = (root, query, criteriaBuilder) ->
-                    criteriaBuilder.equal(root.join("absenceExcuses"), absenceExcuse);
-            specification.and(hasAbsenceExcuse);
-        });
-        Optional.ofNullable(filters.attendanceStatusUUID()).ifPresent(uuid -> {
-            AttendanceStatus attendanceStatus = attendanceStatusRepository.findByUuid(uuid).orElseThrow(
-                    () -> new AttendanceStatusNotFoundException(String.format("Attendance status of uuid %s not found", uuid))
-            );
-            Specification<Attendance> hasAttendanceStatus = (root, query, criteriaBuilder) ->
-                    criteriaBuilder.equal(root.get("attendanceStatus"), attendanceStatus);
-            specification.and(hasAttendanceStatus);
-        });
-        Optional.ofNullable(filters.scheduleDayUUID()).ifPresent(uuid -> {
-            ScheduleDay scheduleDay = scheduleDayRepository.findByUuid(uuid).orElseThrow(
-                    () -> new ScheduleDayNotFoundException(String.format("Schedule day of uuid %s not found", uuid))
-            );
-            Specification<Attendance> hasScheduleDay = (root, query, criteriaBuilder) ->
-                    criteriaBuilder.equal(root.get("scheduleDay"), scheduleDay);
-            specification.and(hasScheduleDay);
-        });
-        Optional.ofNullable(filters.userUUID()).ifPresent(uuid -> {
-            User user = userRepository.findByUuid(uuid).orElseThrow(
-                    () -> new UserNotFoundException(String.format("User of uuid %s not found", uuid))
+
+        if (isEmployee && !principalUser.getUsername().equals(request.request().user()) && request.request().user() != null) {
+            throw new UnauthorizedException("You are not allowed to do this");
+        }
+
+        if (isEmployee) {
+            UserSchedule userSchedule = userScheduleRepository.findByIsActiveAndUser(true, principalUser)
+                    .orElseThrow(() -> new UserScheduleNotFoundException("This user has no active schedule"));
+            Specification<Attendance> hasSchedule = (root, query, criteriaBuilder) ->
+                    criteriaBuilder.equal(root.get("scheduleDay").get("schedule"), userSchedule.getSchedule());
+            specification = specification.and(hasSchedule);
+
+            Specification<Attendance> hasUser = (root, query, criteriaBuilder) ->
+                    criteriaBuilder.equal(root.get("user"), principalUser);
+            specification = specification.and(hasUser);
+
+        } else if (request.request().user() != null) {
+            User user = userRepository.findByUsername(request.request().user()).orElseThrow(
+                    () -> new UserNotFoundException(String.format("User of uuid %s not found", request.request().user()))
             );
             Specification<Attendance> hasUser = (root, query, criteriaBuilder) ->
                     criteriaBuilder.equal(root.get("user"), user);
-            specification.and(hasUser);
-        });
-        int pageNumber = Optional.ofNullable(filters.pageNumber()).orElse(0);
-        int pageSize = Optional.ofNullable(filters.pageSize()).orElse(10);
+            specification = specification.and(hasUser);
+        }
+
+        if (request.request().absenceExcuseUUID() != null) {
+            AbsenceExcuse absenceExcuse = absenceExcuseRepository.findByUuid(request.request().absenceExcuseUUID()).orElseThrow(
+                    () -> new AbsenceExcuseNotFoundException(String.format("Absence excuse of uuid %s not found", request.request().absenceExcuseUUID()))
+            );
+            Specification<Attendance> hasAbsenceExcuse = (root, query, criteriaBuilder) ->
+                    criteriaBuilder.equal(root.join("absenceExcuses"), absenceExcuse);
+            specification = specification.and(hasAbsenceExcuse);
+        }
+
+        if (request.request().attendanceStatusUUID() != null) {
+            AttendanceStatus attendanceStatus = attendanceStatusRepository.findByUuid(request.request().attendanceStatusUUID()).orElseThrow(
+                    () -> new AttendanceStatusNotFoundException(String.format("Attendance status of uuid %s not found", request.request().attendanceStatusUUID()))
+            );
+            Specification<Attendance> hasAttendanceStatus = (root, query, criteriaBuilder) ->
+                    criteriaBuilder.equal(root.get("attendanceStatus"), attendanceStatus);
+            specification = specification.and(hasAttendanceStatus);
+        }
+
+        if (request.request().scheduleDayUUID() != null) {
+            ScheduleDay scheduleDay = scheduleDayRepository.findByUuid(request.request().scheduleDayUUID()).orElseThrow(
+                    () -> new ScheduleDayNotFoundException(String.format("Schedule day of uuid %s not found", request.request().scheduleDayUUID()))
+            );
+            Specification<Attendance> hasScheduleDay = (root, query, criteriaBuilder) ->
+                    criteriaBuilder.equal(root.get("scheduleDay"), scheduleDay);
+            specification = specification.and(hasScheduleDay);
+        }
+
+        int pageNumber = Optional.ofNullable(request.request().pageNumber()).orElse(0);
+        int pageSize = Optional.ofNullable(request.request().pageSize()).orElse(10);
         Page<Attendance> attendances = attendanceRepository.findAll(specification, PageRequest.of(pageNumber, pageSize));
         return AttendanceMapper.map(attendances);
     }
 
     @Override
-    public UUID createAttendance(@NotNull CreateAttendanceDTO dto) {
-        Optional.ofNullable(dto).orElseThrow(() -> new IllegalArgumentException("Argument dto cannot be null"));
-        UUID userUUID = Optional.ofNullable(dto.userUUID()).orElseThrow(() -> new IllegalArgumentException("Field userUUID cannot be null"));
-        UUID attendanceStatusUUID = Optional.ofNullable(dto.attendanceStatusUUID()).orElseThrow(() -> new IllegalArgumentException("Field attendanceStatusUUID cannot be null"));
-        UUID scheduleDayUUID = Optional.ofNullable(dto.scheduleUUID()).orElseThrow(
-                () -> new IllegalArgumentException("Field scheduleDayUUID cannot be null")
+    public AttendanceCreationResponse createAttendance(AttendanceCreationRequest request) {
+        User user = userRepository.findByUsername(request.user()).orElseThrow(() -> new UserNotFoundException(String.format("User of username %s not found", request.user())));
+        AttendanceStatus attendanceStatus = attendanceStatusRepository.findByUuid(request.attendanceStatusUUID()).orElseThrow(
+                () -> new AttendanceStatusNotFoundException(String.format("Attendance status of uuid %s not found", request.attendanceStatusUUID()))
         );
-        LocalDateTime startDateTime = Optional.ofNullable(dto.startDateTime()).orElseThrow(() -> new IllegalArgumentException("Field startDateTime cannot be null"));
-        LocalDateTime endDateTime = Optional.ofNullable(dto.endDateTime()).orElseThrow(() -> new IllegalArgumentException("Field endDateTime cannot be null"));
-        User user = userRepository.findByUuid(userUUID).orElseThrow(() -> new UserNotFoundException(String.format("User of uuid %s not found", userUUID)));
-        AttendanceStatus attendanceStatus = attendanceStatusRepository.findByUuid(attendanceStatusUUID).orElseThrow(
-                () -> new AttendanceStatusNotFoundException(String.format("Attendance status of uuid %s not found", attendanceStatusUUID))
-        );
-        ScheduleDay scheduleDay = scheduleDayRepository.findByUuid(scheduleDayUUID).orElseThrow(
-                () -> new ScheduleDayNotFoundException(String.format("Schedule day of uuid %s not found", dto.scheduleUUID()))
+        ScheduleDay scheduleDay = scheduleDayRepository.findByUuid(request.scheduleDayUUID()).orElseThrow(
+                () -> new ScheduleDayNotFoundException(String.format("Schedule day of uuid %s not found", request.scheduleDayUUID()))
         );
         UUID uuid = UUID.randomUUID();
         Attendance attendance = new Attendance();
         attendance.setUser(user);
         attendance.setAttendanceStatus(attendanceStatus);
-        attendance.setStartDateTime(startDateTime);
-        attendance.setEndDateTime(endDateTime);
+        attendance.setStartDateTime(request.startDateTime());
+        attendance.setEndDateTime(request.endDateTime());
         attendance.setUuid(uuid);
         attendance.setScheduleDay(scheduleDay);
         attendanceRepository.save(attendance);
-        return uuid;
+        return new AttendanceCreationResponse(uuid);
     }
 
     @Override
-    public void updateAttendance(@NotNull UpdateAttendanceDTO dto) {
-        Optional.ofNullable(dto).orElseThrow(() -> new IllegalArgumentException("Argument dto cannot be null"));
-        UUID attendanceUUID = Optional.ofNullable(dto.uuid()).orElseThrow(() -> new IllegalArgumentException("Field uuid cannot be null"));
-        UUID attendanceStatusUUID = Optional.ofNullable(dto.updateAttendanceBody().attendanceStatus()).orElseThrow(() -> new IllegalArgumentException("Field attendanceStatus cannot be null"));
-        LocalDateTime startDateTime = Optional.ofNullable(dto.updateAttendanceBody().startDateTime()).orElseThrow(() -> new IllegalArgumentException("Field startDateTime cannot be null"));
-        LocalDateTime endDateTime = Optional.ofNullable(dto.updateAttendanceBody().endDateTime()).orElseThrow(() -> new IllegalArgumentException("Field endDateTime cannot be null"));
-
-        Attendance attendance = attendanceRepository.findByUuid(attendanceUUID).orElseThrow(
-                () -> new AttendanceNotFoundException(String.format("Attendance of uuid %s not found", attendanceUUID))
+    public void updateAttendance(AuthenticatedRequest<AttendanceUpdateRequest> request) {
+        User principalUser = userUtils.fetchUserByUsername(request.principalName());
+        boolean isManager = principalUser.getRole().getName().equals(DefaultRoleNames.MANAGER);
+        UserSchedule userSchedule = userScheduleRepository.findByIsActiveAndUser(true, principalUser)
+                .orElseThrow(() -> new UserScheduleNotFoundException("This user has no active schedule"));
+        Attendance attendance = attendanceRepository.findByUuid(request.request().uuid()).orElseThrow(
+                () -> new AttendanceNotFoundException(String.format("Attendance of uuid %s not found", request.request().uuid()))
         );
-        AttendanceStatus attendanceStatus = attendanceStatusRepository.findByUuid(attendanceStatusUUID).orElseThrow(
-                () -> new AttendanceNotFoundException(String.format("Attendance status of uuid %s not found", attendanceStatusUUID))
-        );
-        attendance.setAttendanceStatus(attendanceStatus);
-        attendance.setStartDateTime(startDateTime);
-        attendance.setEndDateTime(endDateTime);
+        if (isManager && !attendance.getScheduleDay().getSchedule().getUuid().equals(userSchedule.getSchedule().getUuid())) {
+            throw new UnauthorizedException("You are not allowed to do that");
+        }
+        Optional.ofNullable(request.request().updateAttendanceBody().attendanceStatus()).ifPresent(uuid -> {
+            AttendanceStatus attendanceStatus = attendanceStatusRepository.findByUuid(uuid).orElseThrow(
+                    () -> new AttendanceNotFoundException(String.format("Attendance status of uuid %s not found", uuid))
+            );
+            attendance.setAttendanceStatus(attendanceStatus);
+        });
+        Optional.ofNullable(request.request().updateAttendanceBody().startDateTime()).ifPresent(attendance::setStartDateTime);
+        Optional.ofNullable(request.request().updateAttendanceBody().endDateTime()).ifPresent(attendance::setEndDateTime);
         attendanceRepository.save(attendance);
     }
 
     @Override
-    public void deleteAttendance(@NotNull UUID uuid) {
-        UUID attendanceUUID = Optional.ofNullable(uuid).orElseThrow(() -> new IllegalArgumentException("Argument uuid cannot be null"));
-        Attendance attendance = attendanceRepository.findByUuid(attendanceUUID).orElseThrow(
-                () -> new AttendanceNotFoundException(String.format("Attendance of uuid %s not found", attendanceUUID))
+    public void deleteAttendance(AuthenticatedRequest<AttendanceDeleteRequest> request) {
+        User principalUser = userUtils.fetchUserByUsername(request.principalName());
+        boolean isManager = principalUser.getRole().getName().equals(DefaultRoleNames.MANAGER);
+        Attendance attendance = attendanceRepository.findByUuid(request.request().uuid()).orElseThrow(
+                () -> new AttendanceNotFoundException(String.format("Attendance of uuid %s not found", request.request().uuid()))
         );
+        if (isManager) {
+            UserSchedule userSchedule = userScheduleRepository.findByIsActiveAndUser(true, principalUser)
+                    .orElseThrow(() -> new UserScheduleNotFoundException("This user has no active schedule"));
+            if (!attendance.getScheduleDay().getSchedule().getUuid().equals(userSchedule.getSchedule().getUuid())) {
+                throw new UnauthorizedException("You are not allowed to do that");
+            }
+        }
         attendanceRepository.delete(attendance);
     }
 }

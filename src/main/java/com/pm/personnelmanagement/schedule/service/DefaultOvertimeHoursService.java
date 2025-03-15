@@ -3,10 +3,12 @@ package com.pm.personnelmanagement.schedule.service;
 import com.pm.personnelmanagement.schedule.dto.*;
 import com.pm.personnelmanagement.schedule.mapper.OvertimeHoursMapper;
 import com.pm.personnelmanagement.schedule.model.OvertimeHours;
+import com.pm.personnelmanagement.schedule.model.Schedule;
 import com.pm.personnelmanagement.schedule.model.ScheduleDay;
 import com.pm.personnelmanagement.schedule.repository.OvertimeHoursRepository;
 import com.pm.personnelmanagement.schedule.utils.OvertimeHoursUtils;
 import com.pm.personnelmanagement.schedule.utils.ScheduleDayUtils;
+import com.pm.personnelmanagement.schedule.utils.ScheduleUtils;
 import com.pm.personnelmanagement.user.model.User;
 import com.pm.personnelmanagement.user.util.UserUtils;
 import jakarta.validation.Valid;
@@ -26,12 +28,14 @@ public class DefaultOvertimeHoursService implements OvertimeHoursService {
     private final OvertimeHoursUtils overtimeHoursUtils;
     private final ScheduleDayUtils scheduleDayUtils;
     private final UserUtils userUtils;
+    private final ScheduleUtils scheduleUtils;
 
-    public DefaultOvertimeHoursService(OvertimeHoursRepository overtimeHoursRepository, OvertimeHoursUtils overtimeHoursUtils, ScheduleDayUtils scheduleDayUtils, UserUtils userUtils) {
+    public DefaultOvertimeHoursService(OvertimeHoursRepository overtimeHoursRepository, OvertimeHoursUtils overtimeHoursUtils, ScheduleDayUtils scheduleDayUtils, UserUtils userUtils, ScheduleUtils scheduleUtils) {
         this.overtimeHoursRepository = overtimeHoursRepository;
         this.overtimeHoursUtils = overtimeHoursUtils;
         this.scheduleDayUtils = scheduleDayUtils;
         this.userUtils = userUtils;
+        this.scheduleUtils = scheduleUtils;
     }
 
     @Override
@@ -54,10 +58,10 @@ public class DefaultOvertimeHoursService implements OvertimeHoursService {
                     criteriaBuilder.equal(root.get("user").get("uuid"), uuid);
             specification.and(hasUserUUID);
         });
-        Optional.ofNullable(dto.scheduleDayUUID()).ifPresent(uuid -> {
-            Specification<OvertimeHours> hasScheduleDayUUID = (root, query, criteriaBuilder) ->
-                    criteriaBuilder.equal(root.get("scheduleDay").get("uuid"), uuid);
-            specification.and(hasScheduleDayUUID);
+        Optional.ofNullable(dto.scheduleUUID()).ifPresent(uuid -> {
+            Specification<OvertimeHours> hasScheduleUUID = (root, query, criteriaBuilder) ->
+                    criteriaBuilder.equal(root.get("schedule").get("uuid"), uuid);
+            specification.and(hasScheduleUUID);
         });
         Optional.ofNullable(dto.startDateTime()).ifPresent(startDateTime -> {
             Specification<OvertimeHours> hasStartDateTime = (root, query, criteriaBuilder) ->
@@ -75,7 +79,8 @@ public class DefaultOvertimeHoursService implements OvertimeHoursService {
 
     @Override
     public OvertimeHoursCreationResponse createOvertimeHours(@NotNull @Valid OvertimeHoursCreationRequest dto) {
-        ScheduleDay scheduleDay = scheduleDayUtils.fetchScheduleDay(dto.scheduleDayUUID());
+        //ScheduleDay scheduleDay = scheduleDayUtils.fetchScheduleDay(dto.scheduleUUID());
+        Schedule schedule = scheduleUtils.fetchSchedule(dto.scheduleUUID());
         User approvedBy = userUtils.fetchUser(dto.approvedByUUID());
         User user = userUtils.fetchUser(dto.userUUID());
         UUID uuid = UUID.randomUUID();
@@ -86,8 +91,10 @@ public class DefaultOvertimeHoursService implements OvertimeHoursService {
         overtimeHours.setCreatedAt(LocalDateTime.now());
         overtimeHours.setApprovedBy(approvedBy);
         overtimeHours.setUser(user);
-        overtimeHours.setScheduleDay(scheduleDay);
+        //overtimeHours.setScheduleDay(scheduleDay);
+        overtimeHours.setSchedule(schedule);
         overtimeHours.setDescription(dto.description());
+        overtimeHours.setCompleted(false);
         overtimeHoursRepository.save(overtimeHours);
         return new OvertimeHoursCreationResponse(uuid);
     }
@@ -101,11 +108,13 @@ public class DefaultOvertimeHoursService implements OvertimeHoursService {
             User user = userUtils.fetchUser(uuid);
             overtimeHours.setUser(user);
         });
-        Optional.ofNullable(dto.body().scheduleDayUUID()).ifPresent(uuid -> {
-            ScheduleDay scheduleDay = scheduleDayUtils.fetchScheduleDay(uuid);
-            overtimeHours.setScheduleDay(scheduleDay);
+        Optional.ofNullable(dto.body().scheduleUUID()).ifPresent(uuid -> {
+            //ScheduleDay scheduleDay = scheduleDayUtils.fetchScheduleDay(uuid);
+            Schedule schedule = scheduleUtils.fetchSchedule(uuid);
+            overtimeHours.setSchedule(schedule);
         });
         Optional.ofNullable(dto.body().description()).ifPresent(overtimeHours::setDescription);
+        Optional.ofNullable(dto.body().isCompleted()).ifPresent(overtimeHours::setCompleted);
         overtimeHoursRepository.save(overtimeHours);
     }
 

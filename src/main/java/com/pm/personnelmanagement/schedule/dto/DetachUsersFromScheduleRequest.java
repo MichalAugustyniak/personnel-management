@@ -1,7 +1,10 @@
 package com.pm.personnelmanagement.schedule.dto;
 
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+
 import java.util.List;
 import java.util.UUID;
 
-public record DetachUsersFromScheduleRequest(List<UUID> userUUIDs) {
+public record DetachUsersFromScheduleRequest(@NotNull List<@NotEmpty String> users) {
 }

@@ -1,0 +1,108 @@
+import {useContext, useEffect, useState} from "react";
+import {TaskApiContext} from "~/context/context";
+import type {Task} from "~/api/task-api";
+import {useForm, useWatch} from "react-hook-form";
+import TaskListElement from "~/components/TaskListElement";
+
+type FormData = {
+    nameLike: string;
+    createdByUUID: string;
+    userUUID: string;
+    taskEventUUID: string;
+    from: string;
+    to: string;
+}
+
+export default function TaskFinder() {
+    const taskApi = useContext(TaskApiContext);
+    const [hasMoreTasks, setHasMoreTasks] = useState<boolean | undefined>(undefined);
+    const [taskList, setTaskList] = useState<Task[] | undefined>(undefined);
+    const { register, handleSubmit, watch } = useForm<FormData>();
+    //const nameLikeWatch = useWatch("nameLike");
+
+    useEffect(() => {
+
+    }, []);
+
+
+    const sampleTask: Task = {
+        uuid: "uuid",
+        name: "name",
+        description: "test_description",
+        startDateTime: new Date(Date.now()),
+        endDateTime: new Date(Date.now()),
+        taskEventUUID: "test_task_event_uuid",
+        color: 123123,
+        createdBy: "creator uuid"
+    }
+
+    return (
+        <div className={"h-full w-fit flex flex-col"}>
+            <div className={"h-fit w-fit flex flex-col"}>
+                <div className={"h-10 w-full flex flex-col bg-indigo-200 rounded mb-2 justify-center"}>
+                    Filters
+                </div>
+                <div className={"h-fit w-fit bg-blue-600 flex flex-row font-bold text-white rounded-t"}>
+                    <div className={"h-10 w-20 flex flex-row items-center justify-center"}>
+                        COLOR
+                    </div>
+                    <div className={"h-10 w-96 text-center flex flex-row items-center justify-center"}>
+                        TASK NAME
+                    </div>
+                    <div className={"h-10 w-72 text-center flex flex-row items-center justify-center"}>
+                        START
+                    </div>
+                    <div className={"h-10 w-48 text-center flex flex-row items-center justify-center"}>
+                        END
+                    </div>
+                    <div className={"h-10 w-56 text-center flex flex-row items-center justify-center"}>
+                        CREATED BY
+                    </div>
+                </div>
+                <div className={"w-full bg-gray-100"}>
+                    <TaskListElement task={sampleTask}/>
+                    <TaskListElement task={sampleTask}/>
+                    <TaskListElement task={sampleTask}/>
+                    <TaskListElement task={sampleTask}/>
+                    <TaskListElement task={sampleTask}/>
+                    <TaskListElement task={sampleTask}/>
+                    <TaskListElement task={sampleTask}/>
+                    <TaskListElement task={sampleTask}/>
+                    <TaskListElement task={sampleTask}/>
+                    <TaskListElement task={sampleTask}/>
+                    <TaskListElement task={sampleTask}/>
+                    <TaskListElement task={sampleTask}/>
+                    <TaskListElement task={sampleTask}/>
+                    <TaskListElement task={sampleTask}/>
+                    <TaskListElement task={sampleTask}/>
+                    <TaskListElement task={sampleTask}/>
+                    <TaskListElement task={sampleTask}/>
+                    <TaskListElement task={sampleTask}/>
+                    <TaskListElement task={sampleTask}/>
+                    <TaskListElement task={sampleTask}/>
+                    <TaskListElement task={sampleTask}/>
+                    <TaskListElement task={sampleTask}/>
+                    <TaskListElement task={sampleTask}/>
+                    <TaskListElement task={sampleTask}/>
+                    <TaskListElement task={sampleTask}/>
+                    <TaskListElement task={sampleTask}/>
+                    <TaskListElement task={sampleTask}/>
+                    <TaskListElement task={sampleTask}/>
+                    <TaskListElement task={sampleTask}/>
+                    <TaskListElement task={sampleTask}/>
+                    <TaskListElement task={sampleTask}/>
+                    <TaskListElement task={sampleTask}/>
+                    <TaskListElement task={sampleTask}/>
+                    <TaskListElement task={sampleTask}/>
+                    <TaskListElement task={sampleTask}/>
+                    <TaskListElement task={sampleTask}/>
+                    <TaskListElement task={sampleTask}/>
+                    <TaskListElement task={sampleTask}/>
+                    <TaskListElement task={sampleTask}/>
+                    <TaskListElement task={sampleTask}/>
+                    <button className={"h-10 w-full bg-indigo-500 rounded"}>more...</button>
+                </div>
+            </div>
+        </div>
+    )
+}

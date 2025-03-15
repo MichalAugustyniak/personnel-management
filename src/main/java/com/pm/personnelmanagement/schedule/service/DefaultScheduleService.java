@@ -10,36 +10,42 @@ import com.pm.personnelmanagement.schedule.model.*;
 import com.pm.personnelmanagement.schedule.repository.ScheduleRepository;
 import com.pm.personnelmanagement.schedule.repository.ShiftTypeRepository;
 import com.pm.personnelmanagement.schedule.repository.UserScheduleRepository;
+import com.pm.personnelmanagement.task.dto.AuthenticatedRequest;
+import com.pm.personnelmanagement.user.constant.DefaultRoleNames;
 import com.pm.personnelmanagement.user.exception.UserNotFoundException;
 import com.pm.personnelmanagement.user.model.User;
 import com.pm.personnelmanagement.user.repository.UserRepository;
+import com.pm.personnelmanagement.user.util.UserUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.*;
 
+@Validated
 @Service
 public class DefaultScheduleService implements ScheduleService {
     private final ScheduleRepository scheduleRepository;
     private final UserScheduleRepository userScheduleRepository;
     private final UserRepository userRepository;
     private final ShiftTypeRepository shiftTypeRepository;
+    private final UserUtils userUtils;
 
-    public DefaultScheduleService(ScheduleRepository scheduleRepository, UserScheduleRepository userScheduleRepository, UserRepository userRepository, ShiftTypeRepository shiftTypeRepository) {
+    public DefaultScheduleService(ScheduleRepository scheduleRepository, UserScheduleRepository userScheduleRepository, UserRepository userRepository, ShiftTypeRepository shiftTypeRepository, UserUtils userUtils) {
         this.scheduleRepository = scheduleRepository;
         this.userScheduleRepository = userScheduleRepository;
         this.userRepository = userRepository;
         this.shiftTypeRepository = shiftTypeRepository;
+        this.userUtils = userUtils;
     }
 
     @Override
     public UUID createSchedule(CreateScheduleDTO dto) {
-        Optional.ofNullable(dto).orElseThrow(() -> new IllegalArgumentException("Method argument cannot be null"));
-        Set<User> users = userRepository.findAllByUuidIn(dto.userUUIDList());
-        if (users.size() != dto.userUUIDList().size()) {
+        Set<User> users = userRepository.findAllByUsernameIn(dto.users());
+        if (users.size() != dto.users().size()) {
             throw new UserNotFoundException("Some of the users might not exist");
         }
         Set<UUID> uuids = new HashSet<>();
@@ -69,9 +75,6 @@ public class DefaultScheduleService implements ScheduleService {
             scheduleDay.setUuid(UUID.randomUUID());
             Set<CreateWorkBreakDTO> workBreaks = Optional.ofNullable(day.workBreaks()).orElse(Collections.emptySet());
             for (var workBreak : workBreaks) {
-                if (Optional.ofNullable(workBreak.startDateTime()).isEmpty() || Optional.ofNullable(workBreak.endDateTime()).isEmpty()) {
-                    throw new IllegalArgumentException("Argument startDateTime or endDateTime missing");
-                }
                 WorkBreak workBreak1 = new WorkBreak();
                 workBreak1.setScheduleDay(scheduleDay);
                 workBreak1.setUuid(UUID.randomUUID());
@@ -93,6 +96,7 @@ public class DefaultScheduleService implements ScheduleService {
             System.out.println();
             userScheduleRepository.save(userSchedule1);
         }
+        scheduleRepository.save(schedule);
         return schedule.getUuid();
     }
 
@@ -111,13 +115,6 @@ public class DefaultScheduleService implements ScheduleService {
     @Override
     @Transactional
     public void updateSchedule(UpdateScheduleDTO dto) {
-        Optional.ofNullable(dto).orElseThrow(() -> new IllegalArgumentException("Method argument cannot be null"));
-        Optional.ofNullable(dto.schedule()).orElseThrow(
-                () -> new IllegalArgumentException("Schedule cannot be null")
-        );
-        Optional.ofNullable(dto.scheduleUUID()).orElseThrow(
-                () -> new IllegalArgumentException("UUID cannot be null")
-        );
         Set<UpdateScheduleDayDTO> existingScheduleDays = Optional.ofNullable(
                 dto.schedule().existingScheduleDays()
         ).orElse(Collections.emptySet());
@@ -203,18 +200,9 @@ public class DefaultScheduleService implements ScheduleService {
         }
         for (CreateScheduleDayDTO newScheduleDay : newScheduleDays) {
             ScheduleDay scheduleDay = new ScheduleDay();
-            scheduleDay.setStartDateTime(
-                    Optional.ofNullable(newScheduleDay.startDateTime())
-                            .orElseThrow(() -> new IllegalArgumentException("Empty startDateTime field in newScheduleDay element"))
-            );
-            scheduleDay.setEndDateTime(
-                    Optional.ofNullable(newScheduleDay.endDateTime())
-                            .orElseThrow(() -> new IllegalArgumentException("Empty endDateTime field in newScheduleDay element"))
-            );
-            scheduleDay.setShiftType(
-                    shiftTypeMap.get(Optional.ofNullable(newScheduleDay.shiftTypeUUID())
-                            .orElseThrow(() -> new IllegalArgumentException("Empty shiftTypeUUID field in newScheduleDay element")))
-            );
+            scheduleDay.setStartDateTime(newScheduleDay.startDateTime());
+            scheduleDay.setEndDateTime(newScheduleDay.endDateTime());
+            scheduleDay.setShiftType(shiftTypeMap.get(newScheduleDay.shiftTypeUUID()));
             scheduleDay.setUuid(UUID.randomUUID());
             Set<CreateWorkBreakDTO> workBreaks = Optional.ofNullable(newScheduleDay.workBreaks()).orElse(Collections.emptySet());
             workBreaks.removeIf(Objects::isNull);
@@ -260,9 +248,9 @@ public class DefaultScheduleService implements ScheduleService {
     }
 
     @Override
-    public void deleteSchedule(UUID uuid) {
-        Schedule schedule = scheduleRepository.findByUuid(uuid).orElseThrow(
-                () -> new ScheduleNotFoundException(String.format("Schedule of uuid %s not found", uuid))
+    public void deleteSchedule(ScheduleDeleteRequest request) {
+        Schedule schedule = scheduleRepository.findByUuid(request.uuid()).orElseThrow(
+                () -> new ScheduleNotFoundException(String.format("Schedule of uuid %s not found", request.uuid()))
         );
         for (var scheduleDay : schedule.getScheduleDays()) {
             scheduleDay.getAttendances().stream()
@@ -277,11 +265,11 @@ public class DefaultScheduleService implements ScheduleService {
         scheduleRepository.delete(schedule);
     }
 
+    /*
     @Override
-    public ScheduleDTO getActiveSchedule(UUID uuid) {
-        Optional.ofNullable(uuid).orElseThrow(() -> new IllegalArgumentException("UUID cannot be null"));
-        User user = userRepository.findByUuid(uuid).orElseThrow(
-                () -> new UserNotFoundException(String.format("User of uuid %s not found", uuid))
+    public ScheduleDTO getActiveSchedule(ActiveScheduleRequest request) {
+        User user = userRepository.findByUsername(request.user()).orElseThrow(
+                () -> new UserNotFoundException(String.format("User of username %s not found", request.user()))
         );
         UserSchedule userSchedule = userScheduleRepository.findByIsActiveAndUser(true, user)
                 .orElseThrow(() -> new ScheduleNotFoundException("Active schedule not found"));
@@ -289,17 +277,23 @@ public class DefaultScheduleService implements ScheduleService {
         return ScheduleMapper.map(schedule);
     }
 
+     */
+
     @Override
-    public ScheduleMetaListDTO getSchedules(FetchSchedulesFiltersDTO filters) {
-        Optional.ofNullable(filters).orElseThrow(() -> new IllegalArgumentException("Filters argument cannot be null"));
-        int pageNumber = Optional.ofNullable(filters.pageNumber()).orElse(0);
-        int pageSize = Optional.ofNullable(filters.pageSize()).orElse(10);
+    public SchedulesResponse getSchedules(AuthenticatedRequest<SchedulesRequest> request) {
+        var requestBody = request.request();
+        int pageNumber = Optional.ofNullable(requestBody.pageNumber()).orElse(0);
+        int pageSize = Optional.ofNullable(requestBody.pageSize()).orElse(10);
+        User principalUser = userUtils.fetchUserByUsername(request.principalName());
 
         Specification<Schedule> specification = Specification.where(null);
 
-        if (filters.userUUID() != null) {
-            User user = userRepository.findByUuid(filters.userUUID())
-                    .orElseThrow(() -> new UserNotFoundException(String.format("User of uuid %s not found", filters.userUUID())));
+        boolean isEmployeeOrManager = principalUser.getRole().getName().equals(DefaultRoleNames.MANAGER) ||
+                principalUser.getRole().getName().equals(DefaultRoleNames.EMPLOYEE);
+
+        if (requestBody.user() != null) {
+            User user = userRepository.findByUsername(requestBody.user())
+                    .orElseThrow(() -> new UserNotFoundException(String.format("User of username %s not found", requestBody.user())));
 
             Specification<Schedule> hasUserUUID = (root, query, criteriaBuilder) ->
                     criteriaBuilder.equal(root.join("userSchedules").get("user").get("id"), user.getId());
@@ -307,16 +301,16 @@ public class DefaultScheduleService implements ScheduleService {
             specification = specification.and(hasUserUUID);
         }
 
-        if (filters.isActive() != null) {
+        if (requestBody.isActive() != null) {
             Specification<Schedule> isActive = (root, query, criteriaBuilder) ->
-                    criteriaBuilder.equal(root.join("userSchedules").get("isActive"), filters.isActive());
+                    criteriaBuilder.equal(root.join("userSchedules").get("isActive"), requestBody.isActive());
 
             specification = specification.and(isActive);
         }
 
         Page<Schedule> schedules = scheduleRepository.findAll(specification, PageRequest.of(pageNumber, pageSize));
 
-        return new ScheduleMetaListDTO(
+        return new SchedulesResponse(
                 schedules.getTotalElements(),
                 schedules.getTotalPages(),
                 schedules.getNumber(),
@@ -336,46 +330,62 @@ public class DefaultScheduleService implements ScheduleService {
 
 
     @Override
-    public ScheduleDTO getSchedule(UUID uuid) {
-        Optional.ofNullable(uuid).orElseThrow(() -> new IllegalArgumentException("UUID cannot be null"));
-        Schedule schedule = scheduleRepository.findByUuid(uuid)
-                .orElseThrow(() -> new ScheduleNotFoundException(String.format("Schedule of uuid %s not found", uuid)));
+    public ScheduleDTO getSchedule(ScheduleRequest request) {
+        /*
+        Schedule schedule = scheduleRepository.findByUuid(request.uuid())
+                .orElseThrow(() -> new ScheduleNotFoundException(String.format("Schedule of uuid %s not found", request.uuid())));
+
+         */
+        Schedule schedule = scheduleRepository.findByUuidWithSortedDaysAndBreaks(request.uuid())
+                .orElseThrow(() -> new ScheduleNotFoundException(String.format("Schedule of uuid %s not found", request.uuid())));
         return ScheduleMapper.map(schedule);
     }
 
+    @Transactional
     @Override
     public void attachUsersToSchedule(AttachUsersToScheduleDTO dto) {
-        Optional.ofNullable(dto).orElseThrow(() -> new IllegalArgumentException("Method argument cannot be null"));
-        Optional.ofNullable(dto.scheduleUUID()).orElseThrow(() -> new IllegalArgumentException("Schedule uuid cannot be null"));
-        Optional.ofNullable(dto.userUUIDs()).orElseThrow(() -> new IllegalArgumentException("User uuid list cannot be null"))
-                .removeIf(Objects::isNull);
-        Set<User> users = userRepository.findAllByUuidIn(dto.userUUIDs());
+        Set<User> users = userRepository.findAllByUsernameIn(dto.users());
+        if (users.size() != dto.users().size()) {
+            throw new UserNotFoundException("Some of the users not found");
+        }
         Schedule schedule = scheduleRepository.findByUuid(dto.scheduleUUID())
                 .orElseThrow(() -> new ScheduleNotFoundException(String.format("Schedule of uuid %s not found", dto.scheduleUUID())));
         userScheduleRepository.updateIsActiveUserIn(false, users);
-        Set<UserSchedule> userSchedules = new HashSet<>();
+        Set<UserSchedule> newUserSchedules = new HashSet<>();
+        Set<UserSchedule> foundUserSchedules = userScheduleRepository.findAllByScheduleAndUserIn(schedule, users);
+        for (var user : users) {
+            for (var foundUserSchedule : foundUserSchedules) {
+                if (user.equals(foundUserSchedule.getUser())) {
+                    users.remove(user);
+                    break;
+                }
+            }
+        }
         for (var user : users) {
             UserSchedule userSchedule = new UserSchedule();
             userSchedule.setSchedule(schedule);
             userSchedule.setUser(user);
             userSchedule.setActive(true);
+            newUserSchedules.add(userSchedule);
         }
-        userScheduleRepository.saveAll(userSchedules);
+        userScheduleRepository.updateIsActiveUserIn(true, foundUserSchedules.stream().map(UserSchedule::getUser).toList());
+        userScheduleRepository.saveAll(newUserSchedules);
     }
 
     @Transactional
     @Override
     public void detachUsersFromSchedule(DetachUsersFromScheduleDTO dto) {
-        Optional.ofNullable(dto).orElseThrow(() -> new IllegalArgumentException("Method argument cannot be null"));
-        Optional.ofNullable(dto.scheduleUUID()).orElseThrow(() -> new IllegalArgumentException("Schedule uuid cannot be null"));
-        Optional.ofNullable(dto.userUUIDs()).orElseThrow(() -> new IllegalArgumentException("User uuid list cannot be null"))
-                .removeIf(Objects::isNull);
-        Set<User> users = userRepository.findAllByUuidIn(dto.userUUIDs());
+        Set<User> users = userRepository.findAllByUsernameIn(dto.users());
+        if (users.size() != dto.users().size()) {
+            throw new UserNotFoundException("Some of the users not found");
+        }
         Schedule schedule = scheduleRepository.findByUuid(dto.scheduleUUID())
                 .orElseThrow(() -> new ScheduleNotFoundException(String.format("Schedule of uuid %s not found", dto.scheduleUUID())));
-        userScheduleRepository.deleteByScheduleAndUserIn(schedule, users);
+        userScheduleRepository.updateIsActiveUserIn(false, users);
+        //userScheduleRepository.deleteByScheduleAndUserIn(schedule, users);
     }
 
+    /*
     @Override
     public ScheduleDTO getActiveScheduleByUser(UUID userUUID) {
         User user = userRepository.findByUuid(userUUID).orElseThrow(() -> new UserNotFoundException(String.format("User of uuid %s not found", userUUID)));
@@ -385,4 +395,6 @@ public class DefaultScheduleService implements ScheduleService {
         Optional.ofNullable(schedule).orElseThrow(() -> new ScheduleNotFoundException("This user has no active schedule"));
         return ScheduleMapper.map(schedule);
     }
+
+     */
 }

@@ -2,12 +2,17 @@ package com.pm.personnelmanagement.schedule.controller;
 
 import com.pm.personnelmanagement.schedule.dto.*;
 import com.pm.personnelmanagement.schedule.service.ScheduleService;
+import com.pm.personnelmanagement.task.dto.AuthenticatedRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
+@Validated
 @RestController
 @RequestMapping("/api/schedules")
 public class DefaultScheduleController implements ScheduleController {
@@ -19,8 +24,8 @@ public class DefaultScheduleController implements ScheduleController {
 
     @PostMapping
     @Override
-    public ResponseEntity<ScheduleUUIDDTO> createSchedule(@RequestBody CreateScheduleDTO dto) {
-        return new ResponseEntity<>(new ScheduleUUIDDTO(
+    public ResponseEntity<ScheduleCreationResponse> createSchedule(@RequestBody CreateScheduleDTO dto) {
+        return new ResponseEntity<>(new ScheduleCreationResponse(
                 scheduleService.createSchedule(dto)
         ), HttpStatus.CREATED);
     }
@@ -35,37 +40,36 @@ public class DefaultScheduleController implements ScheduleController {
     @DeleteMapping("/{uuid}")
     @Override
     public ResponseEntity<Void> deleteSchedule(@PathVariable UUID uuid) {
-        scheduleService.deleteSchedule(uuid);
+        scheduleService.deleteSchedule(new ScheduleDeleteRequest(uuid));
         return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    @GetMapping("/active/{uuid}")
-    @Override
-    public ResponseEntity<ScheduleDTO> getActiveSchedule(@PathVariable UUID uuid) {
-        return ResponseEntity.ok(scheduleService.getActiveSchedule(uuid));
     }
 
     @GetMapping
     @Override
-    public ResponseEntity<ScheduleMetaListDTO> getSchedules(
-            @RequestParam(required = false) UUID userUUID,
+    public ResponseEntity<SchedulesResponse> getSchedules(
+            @RequestParam(required = false) String user,
             @RequestParam(required = false) Boolean isActive,
             @RequestParam(required = false) Integer pageSize,
             @RequestParam(required = false) Integer pageNumber
     ) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return ResponseEntity.ok(scheduleService.getSchedules(
-                new FetchSchedulesFiltersDTO(
-                        userUUID,
-                        isActive,
-                        pageSize,
-                        pageNumber
-                )));
+                new AuthenticatedRequest<>(
+                        authentication.getName(),
+                        new SchedulesRequest(
+                                user,
+                                isActive,
+                                pageSize,
+                                pageNumber
+                        ))
+                )
+        );
     }
 
     @GetMapping("/{uuid}")
     @Override
     public ResponseEntity<ScheduleDTO> getSchedule(@PathVariable UUID uuid) {
-        return ResponseEntity.ok(scheduleService.getSchedule(uuid));
+        return ResponseEntity.ok(scheduleService.getSchedule(new ScheduleRequest(uuid)));
     }
 
     @PostMapping("/{scheduleUUID}/users")
@@ -77,7 +81,7 @@ public class DefaultScheduleController implements ScheduleController {
         scheduleService.attachUsersToSchedule(
                 new AttachUsersToScheduleDTO(
                         scheduleUUID,
-                        request.userUUIDs()
+                        request.users()
                 )
         );
         return new ResponseEntity<>(HttpStatus.OK);
@@ -92,15 +96,10 @@ public class DefaultScheduleController implements ScheduleController {
         scheduleService.detachUsersFromSchedule(
                 new DetachUsersFromScheduleDTO(
                         scheduleUUID,
-                        request.userUUIDs()
+                        request.users()
                 )
         );
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @GetMapping("/active")
-    @Override
-    public ResponseEntity<ScheduleDTO> getActiveScheduleByUser(@RequestParam UUID userUUID) {
-        return ResponseEntity.ok(scheduleService.getActiveScheduleByUser(userUUID));
-    }
 }

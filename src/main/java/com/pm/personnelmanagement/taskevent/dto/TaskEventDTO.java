@@ -1,12 +1,15 @@
 package com.pm.personnelmanagement.taskevent.dto;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 public record TaskEventDTO(
-        long id,
+        UUID uuid,
         String name,
         String description,
         LocalDateTime startDateTime,
-        LocalDateTime endDateTime
+        LocalDateTime endDateTime,
+        String createdBy,
+        LocalDateTime createdAt
 ) {
 }

@@ -24,7 +24,7 @@ public class OvertimeHoursUtils {
     }
 
     public OvertimeHours fetchFullOvertimeHours(@NotNull UUID uuid) {
-        return overtimeHoursRepository.findByUuidWithUserAndApprovedByAndScheduleDay(uuid)
+        return overtimeHoursRepository.findByUuidWithUserAndApprovedByAndSchedule(uuid)
                 .orElseThrow(() -> new OvertimeHoursNotFoundException(
                         String.format("Overtime hours of uuid %s not found", uuid)
                 ));

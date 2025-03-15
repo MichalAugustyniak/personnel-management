@@ -16,8 +16,8 @@ public class OvertimeHours {
     private Long id;
     @OneToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH}, fetch = FetchType.LAZY)
     private User user;
-    @OneToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH}, fetch = FetchType.LAZY)
-    private ScheduleDay scheduleDay;
+    //@OneToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH}, fetch = FetchType.LAZY)
+    //private ScheduleDay scheduleDay;
     @Column(nullable = false)
     private LocalDateTime startDateTime;
     @Column(nullable = false)
@@ -30,6 +30,9 @@ public class OvertimeHours {
     @Column(nullable = false, unique = true)
     @JdbcTypeCode(Types.VARCHAR)
     private UUID uuid;
+    @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY)
+    private Schedule schedule;
+    private Boolean isCompleted;
 
     public Long getId() {
         return id;
@@ -47,6 +50,15 @@ public class OvertimeHours {
         this.user = user;
     }
 
+    public Schedule getSchedule() {
+        return schedule;
+    }
+
+    public void setSchedule(Schedule schedule) {
+        this.schedule = schedule;
+    }
+
+    /*
     public ScheduleDay getScheduleDay() {
         return scheduleDay;
     }
@@ -54,6 +66,8 @@ public class OvertimeHours {
     public void setScheduleDay(ScheduleDay scheduleDay) {
         this.scheduleDay = scheduleDay;
     }
+
+     */
 
     public LocalDateTime getStartDateTime() {
         return startDateTime;
@@ -101,5 +115,13 @@ public class OvertimeHours {
 
     public void setUuid(UUID uuid) {
         this.uuid = uuid;
+    }
+
+    public Boolean getCompleted() {
+        return isCompleted;
+    }
+
+    public void setCompleted(Boolean completed) {
+        isCompleted = completed;
     }
 }

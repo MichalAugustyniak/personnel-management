@@ -8,7 +8,7 @@ import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
 @Configuration
-@EnableMongoRepositories(basePackages = "com.pm.personnelmanagement.file.repository")
+//@EnableMongoRepositories(basePackages = "com.pm.personnelmanagement.file.repository")
 public class MongoConfig {
 
     @Bean

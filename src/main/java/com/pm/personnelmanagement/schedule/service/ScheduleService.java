@@ -1,6 +1,7 @@
 package com.pm.personnelmanagement.schedule.service;
 
 import com.pm.personnelmanagement.schedule.dto.*;
+import com.pm.personnelmanagement.task.dto.AuthenticatedRequest;
 
 import java.util.UUID;
 
@@ -9,17 +10,17 @@ public interface ScheduleService {
 
     void updateSchedule(UpdateScheduleDTO dto);
 
-    void deleteSchedule(UUID uuid);
+    void deleteSchedule(ScheduleDeleteRequest request);
 
-    ScheduleDTO getActiveSchedule(UUID uuid);
+    //ScheduleDTO getActiveSchedule(UUID uuid);
 
-    ScheduleMetaListDTO getSchedules(FetchSchedulesFiltersDTO filters);
+    SchedulesResponse getSchedules(AuthenticatedRequest<SchedulesRequest> request);
 
-    ScheduleDTO getSchedule(UUID uuid);
+    ScheduleDTO getSchedule(ScheduleRequest request);
 
     void attachUsersToSchedule(AttachUsersToScheduleDTO dto);
 
     void detachUsersFromSchedule(DetachUsersFromScheduleDTO dto);
 
-    ScheduleDTO getActiveScheduleByUser(UUID userUUID);
+    //ScheduleDTO getActiveScheduleByUser(String user);
 }

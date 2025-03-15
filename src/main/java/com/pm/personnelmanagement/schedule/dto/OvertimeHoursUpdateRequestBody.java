@@ -7,7 +7,9 @@ public record OvertimeHoursUpdateRequestBody(
         LocalDateTime startDateTime,
         LocalDateTime endDateTime,
         UUID userUUID,
-        UUID scheduleDayUUID,
-        String description
+        //UUID scheduleDayUUID,
+        UUID scheduleUUID,
+        String description,
+        Boolean isCompleted
 ) {
 }

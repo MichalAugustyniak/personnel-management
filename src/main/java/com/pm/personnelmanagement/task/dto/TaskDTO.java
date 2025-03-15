@@ -1,6 +1,7 @@
 package com.pm.personnelmanagement.task.dto;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 public record TaskDTO(
         String uuid,
@@ -8,8 +9,9 @@ public record TaskDTO(
         String description,
         LocalDateTime startDateTime,
         LocalDateTime endDateTime,
-        Integer color,
+        String color,
         String createdBy,
-        long taskEventId
+        UUID taskEventUUID,
+        boolean isCompleted
 ) {
 }

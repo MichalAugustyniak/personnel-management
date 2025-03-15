@@ -19,13 +19,16 @@ public class Schedule {
     private String name;
     private String description;
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "schedule", orphanRemoval = true)
+    @OrderBy("startDateTime asc")
     private Set<ScheduleDay> scheduleDays = new HashSet<>();
-    @OneToMany(mappedBy = "schedule", cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+    @OneToMany(mappedBy = "schedule", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<UserSchedule> userSchedules = new HashSet<>();
     private Integer maxWorkingHoursPerDay;
     private Boolean enableHolidayAssignments;
     private Boolean enableWorkingSaturdays;
     private Boolean enableWorkingSundays;
+
+    // gettery i settery
 
     public Set<UserSchedule> getUserSchedules() {
         return userSchedules;

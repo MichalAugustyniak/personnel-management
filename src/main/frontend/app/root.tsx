@@ -1,14 +1,27 @@
-import {
-  isRouteErrorResponse,
-  Links,
-  Meta,
-  Outlet,
-  Scripts,
-  ScrollRestoration,
-} from "react-router";
+import {isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration,} from "react-router";
 
-import type { Route } from "./+types/root";
+import type {Route} from "./+types/root";
 import stylesheet from "./app.css?url";
+import {
+    addressApi,
+    AddressApiContext,
+    attendanceApi,
+    AttendanceApiContext,
+    attendanceStatusApi,
+    AttendanceStatusApiContext,
+    loginApi,
+    LoginApiContext,
+    logoApi,
+    LogoApiContext,
+    scheduleApi,
+    ScheduleApiContext,
+    taskApi,
+    TaskApiContext,
+    taskEventApi,
+    TaskEventApiContext,
+    userApi,
+    UserApiContext
+} from "~/context/context";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -43,7 +56,27 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  return <Outlet />;
+  return (
+      <LogoApiContext.Provider value={logoApi}>
+      <AttendanceApiContext.Provider value={attendanceApi}>
+      <AttendanceStatusApiContext.Provider value={attendanceStatusApi}>
+      <ScheduleApiContext.Provider value={scheduleApi}>
+      <TaskEventApiContext.Provider value={taskEventApi}>
+      <TaskApiContext.Provider value={taskApi}>
+      <AddressApiContext.Provider value={addressApi}>
+        <UserApiContext.Provider value={userApi}>
+          <LoginApiContext.Provider value={loginApi}>
+            <Outlet />
+          </LoginApiContext.Provider>
+        </UserApiContext.Provider>
+      </AddressApiContext.Provider>
+      </TaskApiContext.Provider>
+      </TaskEventApiContext.Provider>
+      </ScheduleApiContext.Provider>
+      </AttendanceStatusApiContext.Provider>
+      </AttendanceApiContext.Provider>
+      </LogoApiContext.Provider>
+  );
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {

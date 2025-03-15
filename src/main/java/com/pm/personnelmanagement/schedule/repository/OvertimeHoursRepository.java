@@ -1,6 +1,7 @@
 package com.pm.personnelmanagement.schedule.repository;
 
 import com.pm.personnelmanagement.schedule.model.OvertimeHours;
+import com.pm.personnelmanagement.user.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -8,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @Repository
@@ -18,7 +20,9 @@ public interface OvertimeHoursRepository extends JpaRepository<OvertimeHours, Lo
             "FROM OvertimeHours oh " +
             "JOIN FETCH oh.user u " +
             "JOIN FETCH oh.approvedBy a " +
-            "JOIN FETCH oh.scheduleDay s " +
+            "JOIN FETCH oh.schedule s " +
             "WHERE oh.uuid = :uuid")
-    Optional<OvertimeHours> findByUuidWithUserAndApprovedByAndScheduleDay(@Param("uuid") UUID uuid);
+    Optional<OvertimeHours> findByUuidWithUserAndApprovedByAndSchedule(@Param("uuid") UUID uuid);
+
+    Set<OvertimeHours> findAllByUser(User user);
 }

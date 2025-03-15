@@ -11,6 +11,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "schedule_days")
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 public class ScheduleDay {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

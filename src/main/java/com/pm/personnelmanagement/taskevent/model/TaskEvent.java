@@ -1,7 +1,9 @@
 package com.pm.personnelmanagement.taskevent.model;
 
 import com.pm.personnelmanagement.task.model.Task;
+import com.pm.personnelmanagement.user.model.User;
 import jakarta.persistence.*;
+import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.JdbcTypeCode;
 
 import java.sql.Types;
@@ -13,20 +15,25 @@ import java.util.UUID;
 @Entity
 @Table(name = "task_events")
 public class TaskEvent {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     @JdbcTypeCode(Types.VARCHAR)
+    @Column(nullable = false)
     private UUID uuid = UUID.randomUUID();
-
+    @Column(nullable = false)
     private String name;
     private String description;
+    @Column(nullable = false)
     private LocalDateTime startDateTime;
+    @Column(nullable = false)
     private LocalDateTime endDateTime;
+    @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.REFRESH}, fetch = FetchType.LAZY, optional = false)
+    private User createdBy;
+    @Column(nullable = false)
+    private LocalDateTime createdAt;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "taskEvent")
+    @OneToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY, mappedBy = "taskEvent")
     private Set<Task> tasks = new HashSet<>();
 
     @Override
@@ -95,5 +102,21 @@ public class TaskEvent {
 
     public void setTasks(Set<Task> tasks) {
         this.tasks = tasks;
+    }
+
+    public User getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(User createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 }

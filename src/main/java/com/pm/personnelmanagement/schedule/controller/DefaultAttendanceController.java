@@ -2,8 +2,11 @@ package com.pm.personnelmanagement.schedule.controller;
 
 import com.pm.personnelmanagement.schedule.dto.*;
 import com.pm.personnelmanagement.schedule.service.AttendanceService;
+import com.pm.personnelmanagement.task.dto.AuthenticatedRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -19,52 +22,75 @@ public class DefaultAttendanceController implements AttendanceController {
 
     @GetMapping("/{uuid}")
     @Override
-    public ResponseEntity<AttendanceDTO> getAttendance(@PathVariable UUID uuid) {
-        return ResponseEntity.ok(attendanceService.getAttendance(uuid));
+    public ResponseEntity<AttendanceResponse> getAttendance(@PathVariable UUID uuid) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return ResponseEntity.ok(attendanceService.getAttendance(
+                new AuthenticatedRequest<>(
+                        authentication.getName(),
+                        new AttendanceRequest(uuid)
+                ))
+        );
     }
 
     @GetMapping
     @Override
-    public ResponseEntity<AttendanceListDTO> getAttendances(
+    public ResponseEntity<AttendancesResponse> getAttendances(
             @RequestParam(required = false) Integer pageNumber,
             @RequestParam(required = false) Integer pageSize,
-            @RequestParam(required = false) UUID userUUID,
+            @RequestParam(required = false) String user,
             @RequestParam(required = false) UUID scheduleDayUUID,
             @RequestParam(required = false) UUID absenceExcuseUUID,
             @RequestParam(required = false) UUID attendanceStatusUUID
     ) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return ResponseEntity.ok(attendanceService.getAttendances(
-                new FetchAttendancesFiltersDTO(
-                        pageNumber,
-                        pageSize,
-                        userUUID,
-                        scheduleDayUUID,
-                        absenceExcuseUUID,
-                        attendanceStatusUUID
+                new AuthenticatedRequest<>(
+                        authentication.getName(),
+                        new AttendancesRequest(
+                                pageNumber,
+                                pageSize,
+                                user,
+                                scheduleDayUUID,
+                                absenceExcuseUUID,
+                                attendanceStatusUUID
+                        )
                 )
         ));
     }
 
     @PostMapping
     @Override
-    public ResponseEntity<AttendanceUUIDResponse> createAttendance(CreateAttendanceDTO dto) {
+    public ResponseEntity<AttendanceCreationResponse> createAttendance(@RequestBody AttendanceCreationRequest dto) {
+        System.out.println(dto);
         return new ResponseEntity<>(
-                new AttendanceUUIDResponse(attendanceService.createAttendance(dto)),
+                attendanceService.createAttendance(dto),
                 HttpStatus.CREATED
         );
     }
 
     @PatchMapping("/{uuid}")
     @Override
-    public ResponseEntity<Void> updateAttendance(@PathVariable UUID uuid, UpdateAttendanceBodyDTO dto) {
-        attendanceService.updateAttendance(new UpdateAttendanceDTO(uuid, dto));
+    public ResponseEntity<Void> updateAttendance(@PathVariable UUID uuid, @RequestBody UpdateAttendanceBodyDTO dto) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        attendanceService.updateAttendance(
+                new AuthenticatedRequest<>(
+                        authentication.getName(),
+                        new AttendanceUpdateRequest(uuid, dto)
+                )
+        );
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @DeleteMapping("/{uuid}")
     @Override
     public ResponseEntity<Void> deleteAttendance(@PathVariable UUID uuid) {
-        attendanceService.deleteAttendance(uuid);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        attendanceService.deleteAttendance(
+                new AuthenticatedRequest<>(
+                        authentication.getName(),
+                        new AttendanceDeleteRequest(uuid)
+                )
+        );
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

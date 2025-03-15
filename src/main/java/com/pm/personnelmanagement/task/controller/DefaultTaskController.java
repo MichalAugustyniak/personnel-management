@@ -1,80 +1,109 @@
 package com.pm.personnelmanagement.task.controller;
 
+import com.pm.personnelmanagement.common.dto.PagedResponse;
 import com.pm.personnelmanagement.task.dto.*;
 import com.pm.personnelmanagement.task.service.TaskService;
-import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.domain.Page;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
+@Validated
 @RestController
 @RequestMapping("/api/tasks")
 public class DefaultTaskController implements TaskController {
-
     private final TaskService taskService;
 
-    public DefaultTaskController(@Qualifier("defaultTaskService") TaskService taskService) {
+    public DefaultTaskController(TaskService taskService) {
         this.taskService = taskService;
     }
 
     @Override
     @PostMapping
-    public ResponseEntity<CreateTaskResponse> createTask(@RequestBody CreateTaskRequest request, HttpServletRequest httpServletRequest) {
-
-        String token = httpServletRequest.getHeader(HttpHeaders.AUTHORIZATION); // todo: decode and check if user has access
-        String username = "username"; // todo: remove the placeholder
-
-        UUID uuid = taskService.createTask(new CreateTaskDTO(
-                username,
-                request
+    public ResponseEntity<TaskCreationResponse> createTask(@RequestBody TaskCreationRequest request) {
+        SecurityContext context = SecurityContextHolder.getContext();
+        TaskCreationResponse response = taskService.createTask(new AuthenticatedRequest<>(
+                context.getAuthentication().getName(), request
         ));
-        return new ResponseEntity<>(new CreateTaskResponse(uuid.toString()), HttpStatus.CREATED);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @Override
-    @PatchMapping("/{id}")
-    public ResponseEntity<Void> editTask(@RequestBody EditTaskRequest task, @PathVariable long id, HttpServletRequest httpServletRequest) {
-        String token = httpServletRequest.getHeader(HttpHeaders.AUTHORIZATION);
-        String username = "username";
-        taskService.editTask(new EditTaskDTO(id, task));
+    @PatchMapping("/{taskUUID}")
+    public ResponseEntity<Void> editTask(@RequestBody TaskUpdateRuquestBody request, @PathVariable UUID taskUUID) {
+        System.out.println(taskUUID);
+        SecurityContext context = SecurityContextHolder.getContext();
+        taskService.editTask(new AuthenticatedRequest<>(context.getAuthentication().getName(), new TaskUpdateRequest(taskUUID, request)));
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Override
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTask(@PathVariable long id, HttpServletRequest httpServletRequest) {
-        taskService.deleteTask(id);
+    @DeleteMapping("/{taskUUID}")
+    public ResponseEntity<Void> deleteTask(@PathVariable UUID taskUUID) {
+        SecurityContext context = SecurityContextHolder.getContext();
+        taskService.deleteTask(new AuthenticatedRequest<>(context.getAuthentication().getName(), new TaskDeletionRequest(taskUUID)));
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Override
-    @GetMapping("/{id}")
-    public ResponseEntity<TaskDTO> getTaskById(@PathVariable long id) {
-        return ResponseEntity.ok(taskService.getTaskById(id));
+    @GetMapping("/{taskUUID}")
+    public ResponseEntity<TaskDTO> getTaskById(@PathVariable UUID taskUUID) {
+        SecurityContext context = SecurityContextHolder.getContext();
+        return ResponseEntity.ok(taskService.getTask(
+                new AuthenticatedRequest<>(context.getAuthentication().getName(), new TaskRequest(taskUUID))
+        ));
     }
 
     @Override
     @GetMapping
-    public ResponseEntity<Page<TaskDTO>> getAllTasks(@RequestParam int pageNumber, @RequestParam int pageSize) {
-        return ResponseEntity.ok(taskService.getAllTasks(pageNumber, pageSize));
+    public ResponseEntity<PagedResponse<TaskDTO>> getAllTasks(
+            @RequestParam(required = false) Integer pageNumber,
+            @RequestParam(required = false) Integer pageSize,
+            @RequestParam(required = false) String nameLike,
+            @RequestParam(required = false) String createdBy,
+            @RequestParam(required = false) String user,
+            @RequestParam(required = false) UUID taskEventUUID,
+            @RequestParam(required = false) LocalDateTime from,
+            @RequestParam(required = false) LocalDateTime to
+            ) {
+        SecurityContext context = SecurityContextHolder.getContext();
+        return ResponseEntity.ok(taskService.getAllTasks(
+                new AuthenticatedRequest<>(
+                        context.getAuthentication().getName(),
+                        new TasksRequestFilters(pageNumber, pageSize, nameLike, createdBy, user, taskEventUUID, from, to)
+                )
+        ));
     }
 
     @Override
-    @PostMapping("/{taskId}/users")
-    public ResponseEntity<Void> assignUserToTask(@RequestBody UserTaskRequest request, @RequestParam long taskId) {
-        taskService.assignUserToTask(request, taskId);
+    @PostMapping("/{taskUUID}/users")
+    public ResponseEntity<Void> assignUserToTask(@RequestBody UserTaskRequest request, @PathVariable UUID taskUUID) {
+        SecurityContext context = SecurityContextHolder.getContext();
+        taskService.assignUserToTask(new AuthenticatedRequest<>(context.getAuthentication().getName(), new AssignUserToTaskRequest(request.userUUID(), taskUUID)));
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Override
-    @DeleteMapping("/{taskId}/users")
-    public ResponseEntity<Void> dismissUserFromTask(@RequestBody UserTaskRequest request, @RequestParam long taskId) {
-        taskService.dismissUserFromTask(request, taskId);
+    @DeleteMapping("/{taskUUID}/users")
+    public ResponseEntity<Void> dismissUserFromTask(@RequestBody UserTaskRequest request, @PathVariable UUID taskUUID) {
+        SecurityContext context = SecurityContextHolder.getContext();
+        taskService.dismissUserFromTask(new AuthenticatedRequest<>(
+                context.getAuthentication().getName(),
+                new DismissUserFromTaskRequest(request.userUUID(), taskUUID)
+        ));
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @Override
+    @GetMapping("/{taskUUID}/users")
+    public ResponseEntity<TaskUsers> getUsersByTask(@PathVariable UUID taskUUID) {
+        return ResponseEntity.ok(
+                taskService.getUsersByTask(new TaskUsersRequest(taskUUID))
+        );
     }
 }

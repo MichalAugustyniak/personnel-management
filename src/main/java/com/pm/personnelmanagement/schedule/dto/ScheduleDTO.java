@@ -1,6 +1,6 @@
 package com.pm.personnelmanagement.schedule.dto;
 
-import java.util.Set;
+import java.util.List;
 import java.util.UUID;
 
 public record ScheduleDTO(
@@ -11,6 +11,6 @@ public record ScheduleDTO(
         boolean enableHolidayAssignments,
         boolean enableWorkingSaturdays,
         boolean enableWorkingSundays,
-        Set<ScheduleDayDTO> days
+        List<ScheduleDayDTO> days
 ) {
 }

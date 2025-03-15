@@ -1,79 +1,140 @@
-import SideNavMenu, {type OptionContainer} from "~/components/SideNavMenu";
+import DashboardBase, {type OptionContainer} from "~/components/DashboardBase";
+import UserSchedulePage from "~/pages/UserSchedulePage";
+import AttendanceViewPage from "~/pages/AttendanceViewPage";
+import AttendanceCreationPage from "~/pages/AttendanceCreationPage";
+import UserProfilePage from "~/pages/UserProfilePage";
+import ChangePasswordPage from "~/pages/ChangePasswordPage";
+import TasksViewPage from "~/pages/TasksViewPage";
+import TaskCreationPage from "~/pages/TaskCreationPage";
+import TaskEventViewPage from "~/pages/TaskEventViewPage";
+import TaskEventCreationPage from "~/pages/TaskEventCreationPage";
+import {useContext, useEffect, useState} from "react";
+import {LogoApiContext} from "~/context/context";
 
 const optionContainers: OptionContainer[] = [
     {
-        name: "OptionGroup1",
+        name: "Profile",
         options: [
             {
-                iconURL: "/account_circle-24px.png",
-                label: "Option 1"
+                iconURL: "profile.png",
+                label: "My profile",
+                tab: {
+                    name: "profile",
+                    content: <UserProfilePage/>
+                }
             },
             {
-                iconURL: "/account_circle-24px.png",
-                label: "Option 2"
+                iconURL: "password.png",
+                label: "Change password",
+                tab: {
+                    name: "change-password",
+                    content: <ChangePasswordPage/>
+                }
             },
         ]
     },
     {
-        name: "OptionGroup2",
+        name: "Schedule",
         options: [
             {
-                iconURL: "/account_circle-24px.png",
-                label: "Option 1"
-            },
-            {
-                iconURL: "/account_circle-24px.png",
-                label: "Option 2"
+                iconURL: "calendar.png",
+                label: "My schedule",
+                tab: {
+                    name: "my-schedule",
+                    content: <UserSchedulePage/>
+                }
             },
         ]
     },
     {
-        name: "OptionGroup2",
+        name: "Attendances",
         options: [
             {
-                iconURL: "/account_circle-24px.png",
-                label: "Option 1"
+                iconURL: "attendance.png",
+                label: "All attendances",
+                tab: {
+                    name: "attendances",
+                    content: <AttendanceViewPage/>
+                }
             },
             {
-                iconURL: "/account_circle-24px.png",
-                label: "Option 2"
+                iconURL: "add-circle.png",
+                label: "New attendance",
+                tab: {
+                    name: "new-attendance",
+                    content: <AttendanceCreationPage/>
+                }
             },
         ]
     },
     {
-        name: "OptionGroup2",
+        name: "Tasks",
         options: [
             {
-                iconURL: "/account_circle-24px.png",
-                label: "Option 1"
+                iconURL: "task.png",
+                label: "All tasks",
+                tab: {
+                    name: "tasks",
+                    content: <TasksViewPage/>
+                }
             },
             {
-                iconURL: "/account_circle-24px.png",
-                label: "Option 2"
+                iconURL: "add-circle.png",
+                label: "New task",
+                tab: {
+                    name: "new-task",
+                    content: <TaskCreationPage/>
+                }
             },
         ]
     },
     {
-        name: "OptionGroup2",
+        name: "Task events",
         options: [
             {
-                iconURL: "/account_circle-24px.png",
-                label: "Option 1"
+                iconURL: "task2.png",
+                label: "All task events",
+                tab: {
+                    name: "task-events",
+                    content: <TaskEventViewPage/>
+                }
             },
             {
-                iconURL: "/account_circle-24px.png",
-                label: "Option 2"
+                iconURL: "add-circle.png",
+                label: "New task event",
+                tab: {
+                    name: "new-task-event",
+                    content: <TaskEventCreationPage/>
+                }
             },
         ]
-    }
+    },
+
 ];
 
-const logoURL = "/public/LEGO_logo.svg.png";
+const homeTab = <div className={"h-full w-full content-center text-center"}>
+    <div className={"text-2xl"}>Welcome to the Manager Dashboard</div>
+</div>
 
 export default function ManagerPage() {
+
+    const logoApi = useContext(LogoApiContext);
+    const [logo, setLogo] = useState("");
+
+    const fetchLogo = async () => {
+        const response = await logoApi.getLogo();
+        if (!response.raw.ok) {
+            throw new Error("Something went wrong while fetching the logo");
+        }
+        console.log(logoApi.getHost() + response.body.propertyValue);
+        setLogo(logoApi.getHost() + response.body.propertyValue);
+    }
+
+    useEffect(() => {
+        fetchLogo();
+    }, []);
+
     return (
-        <>
-            <SideNavMenu logoURL={logoURL} optionContainers={optionContainers}/>
-        </>
+        <DashboardBase logoURL={logo} homeTab={homeTab} optionContainers={optionContainers}></DashboardBase>
     )
 }

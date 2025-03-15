@@ -5,15 +5,30 @@ import com.pm.personnelmanagement.task.model.Task;
 
 public class TaskMapper {
     public static TaskDTO map(Task task) {
-        return new TaskDTO(
-                task.getUuid().toString(),
-                task.getName(),
-                task.getDescription(),
-                task.getStartDateTime(),
-                task.getEndDateTime(),
-                task.getColor(),
-                task.getCreatedBy(),
-                task.getTaskEvent().getId()
-        );
+        if (task.getTaskEvent() != null) {
+            return new TaskDTO(
+                    task.getUuid().toString(),
+                    task.getName(),
+                    task.getDescription(),
+                    task.getStartDateTime(),
+                    task.getEndDateTime(),
+                    task.getColor(),
+                    task.getCreatedBy().getUsername(),
+                    task.getTaskEvent().getUuid(),
+                    task.getCompleted()
+            );
+        } else {
+            return new TaskDTO(
+                    task.getUuid().toString(),
+                    task.getName(),
+                    task.getDescription(),
+                    task.getStartDateTime(),
+                    task.getEndDateTime(),
+                    task.getColor(),
+                    task.getCreatedBy().getUsername(),
+                    null,
+                    task.getCompleted()
+            );
+        }
     }
 }

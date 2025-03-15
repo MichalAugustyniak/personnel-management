@@ -1,6 +1,7 @@
 package com.pm.personnelmanagement.task.model;
 
 import com.pm.personnelmanagement.taskevent.model.TaskEvent;
+import com.pm.personnelmanagement.user.model.User;
 import jakarta.persistence.*;
 import org.hibernate.annotations.JdbcTypeCode;
 
@@ -19,15 +20,33 @@ public class Task {
     private Long id;
 
     @JdbcTypeCode(Types.VARCHAR)
+    @Column(nullable = false)
     private UUID uuid = UUID.randomUUID();
 
+    @Column(nullable = false)
     private String name;
     private String description;
+    @Column(nullable = false)
     private LocalDateTime startDateTime;
+    @Column(nullable = false)
     private LocalDateTime endDateTime;
-    private Integer color;
-    private String createdBy;
+    @Column(nullable = false)
+    private String color;
+    @Column(nullable = false)
+    private Boolean isCompleted;
 
+    public Boolean getCompleted() {
+        return isCompleted;
+    }
+
+    public void setCompleted(Boolean completed) {
+        isCompleted = completed;
+    }
+
+    @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY)
+    private User createdBy;
+
+    /*
     @ElementCollection
     @CollectionTable(
             name = "task_user",
@@ -36,7 +55,17 @@ public class Task {
     @Column(name = "user_id")
     private Set<String> users = new HashSet<>();
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+     */
+
+    @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "users_tasks",
+            joinColumns = @JoinColumn(name = "task_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private Set<User> users = new HashSet<>();
+
+    @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY)
     private TaskEvent taskEvent;
 
     @Override
@@ -100,22 +129,30 @@ public class Task {
         this.endDateTime = endDateTime;
     }
 
-    public Integer getColor() {
+    public String getColor() {
         return color;
     }
 
-    public void setColor(Integer color) {
+    public void setColor(String color) {
         this.color = color;
     }
 
-    public String getCreatedBy() {
+    public User getCreatedBy() {
         return createdBy;
     }
 
-    public void setCreatedBy(String createdBy) {
+    public void setCreatedBy(User createdBy) {
         this.createdBy = createdBy;
     }
 
+    public Set<User> getUsers() {
+        return users;
+    }
+
+    public void setUsers(Set<User> users) {
+        this.users = users;
+    }
+/*
     public Set<String> getUsers() {
         return users;
     }
@@ -123,6 +160,8 @@ public class Task {
     public void setUsers(Set<String> users) {
         this.users = users;
     }
+
+     */
 
     public TaskEvent getTaskEvent() {
         return taskEvent;

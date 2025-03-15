@@ -1,6 +1,7 @@
 package com.pm.personnelmanagement.schedule.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -10,6 +11,6 @@ public record ScheduleDayDTO(
         LocalDateTime startDateTime,
         LocalDateTime endDateTime,
         UUID shiftTypeUUID,
-        Set<WorkBreakDTO> workBreaks
+        List<WorkBreakDTO> workBreaks
 ) {
 }

@@ -8,6 +8,6 @@ public record ShiftTypeDTO(
         String name,
         String description,
         LocalTime startTime,
-        LocalTime endTIme
+        LocalTime endTime
 ) {
 }

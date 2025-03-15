@@ -6,6 +6,6 @@ import java.util.UUID;
 
 public record UpdateAttendanceStatusDTO(
         @NotNull UUID uuid,
-        @NotNull UpdateAttendanceStatusBodyDTO body
+        @NotNull AttendanceStatusUpdateRequestBody body
         ) {
 }
