@@ -1,8 +1,7 @@
 package com.pm.personnelmanagement.taskevent.service;
 
 import com.pm.personnelmanagement.common.dto.PagedResponse;
-import com.pm.personnelmanagement.common.util.SpecificationUtils;
-import com.pm.personnelmanagement.permission.exception.UnauthorizedException;
+import com.pm.personnelmanagement.common.UnauthorizedException;
 import com.pm.personnelmanagement.task.dto.AuthenticatedRequest;
 import com.pm.personnelmanagement.task.model.Task;
 import com.pm.personnelmanagement.taskevent.dto.*;
@@ -110,12 +109,7 @@ public class DefaultTaskEventService implements TaskEventService {
     @Override
     public PagedResponse<TaskEventDTO> getAllTaskEvents(AuthenticatedRequest<TaskEventsRequest> request) {
         var requestBody = request.request();
-        User principal = userUtils.fetchUserByUsername(request.principalName());
-        boolean isAdmin = principal.getRole().getName().equals(DefaultRoleNames.ADMIN);
-        boolean isManager = principal.getRole().getName().equals(DefaultRoleNames.MANAGER);
-        boolean isEmployee = principal.getRole().getName().equals(DefaultRoleNames.EMPLOYEE);
         Specification<TaskEvent> specification = Specification.where(null);
-
         if (requestBody.createdBy() != null) {
             Specification<TaskEvent> spec = (root, query, criteriaBuilder) ->
                     criteriaBuilder.equal(root.get("createdBy").get("username"), requestBody.createdBy());

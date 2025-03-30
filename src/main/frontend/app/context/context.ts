@@ -9,44 +9,47 @@ import {type ScheduleApi, ScheduleApiV1} from "~/api/schedule-api";
 import {type AttendanceStatusApi, AttendanceStatusApiV1} from "~/api/attendance-status-api";
 import {type AttendanceApi, AttendanceApiV1} from "~/api/attendance-api";
 import {type LogoApi, LogoApiV1} from "~/api/logo-api";
+import * as process from "node:process";
 
-export const loginApi: LoginApi = new LoginApiV1("localhost:8080", false);
+const url = import.meta.env.VITE_API_URL;
+
+export const loginApi: LoginApi = new LoginApiV1(url);
 
 export const LoginApiContext = createContext<LoginApi>(loginApi);
 
-export const userApi: UserApi = new UserApiV1("localhost:8080", false);
+export const userApi: UserApi = new UserApiV1(url);
 
 export const UserApiContext = createContext<UserApi>(userApi);
 
-export const addressApi: AddressApi = new AddressApiV1("localhost:8080", false);
+export const addressApi: AddressApi = new AddressApiV1(url);
 
 export const AddressApiContext = createContext<AddressApi>(addressApi);
 
-export const taskApi: TaskApi = new TaskApiV1("localhost:8080", false);
+export const taskApi: TaskApi = new TaskApiV1(url);
 
 export const TaskApiContext = createContext<TaskApi>(taskApi);
 
-export const taskEventApi: TaskEventApi = new TaskEventApiV1("localhost:8080", false);
+export const taskEventApi: TaskEventApi = new TaskEventApiV1(url);
 
 export const TaskEventApiContext = createContext<TaskEventApi>(taskEventApi);
 
-export const shiftTypeApi: ShiftTypeApi = new ShiftTypeApiV1("localhost:8080", false);
+export const shiftTypeApi: ShiftTypeApi = new ShiftTypeApiV1(url);
 
 export const ShiftTypeContext = createContext(shiftTypeApi);
 
-export const scheduleApi: ScheduleApi = new ScheduleApiV1("localhost:8080", false);
+export const scheduleApi: ScheduleApi = new ScheduleApiV1(url);
 
 export const ScheduleApiContext = createContext(scheduleApi);
 
-export const attendanceStatusApi: AttendanceStatusApi = new AttendanceStatusApiV1("localhost:8080", false);
+export const attendanceStatusApi: AttendanceStatusApi = new AttendanceStatusApiV1(url);
 
 export const AttendanceStatusApiContext = createContext(attendanceStatusApi);
 
-export const attendanceApi: AttendanceApi = new AttendanceApiV1("localhost:8080", false);
+export const attendanceApi: AttendanceApi = new AttendanceApiV1(url);
 
 export const AttendanceApiContext = createContext(attendanceApi);
 
-export const logoApi: LogoApi = new LogoApiV1("localhost:8080", false);
+export const logoApi: LogoApi = new LogoApiV1(url);
 
 export const LogoApiContext = createContext(logoApi);
 

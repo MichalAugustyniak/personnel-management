@@ -31,6 +31,9 @@ public class InitialDataService {
 
     @Transactional
     public void insertInitialData() {
+        if (appConfigPropertyRepository.existsByPropertyName(AppConfigProperties.IS_CONFIGURED)) {
+            return;
+        }
         AppConfigProperty appConfigProperty = new AppConfigProperty();
         appConfigProperty.setPropertyName(AppConfigProperties.IS_CONFIGURED);
         appConfigProperty.setPropertyValue(String.valueOf(true));

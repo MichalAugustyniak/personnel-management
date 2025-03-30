@@ -3,6 +3,7 @@ package com.pm.personnelmanagement.config;
 import com.pm.personnelmanagement.user.constant.DefaultRoleNames;
 import com.pm.personnelmanagement.user.service.UserService;
 import com.pm.personnelmanagement.user.util.UserUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -32,6 +33,8 @@ import java.util.Arrays;
 @EnableWebSecurity
 @Configuration
 public class WebSecurityConfig {
+    @Value("${app.client.url}")
+    private String clientUrl;
 
     @Bean
     public UserDetailsService userService(UserUtils userUtils) {
@@ -78,7 +81,6 @@ public class WebSecurityConfig {
                     .requestMatchers(HttpMethod.POST, "/api/attendances", "/api/attendances/**").hasAnyRole(DefaultRoleNames.ADMIN, DefaultRoleNames.MANAGER)
                     .requestMatchers(HttpMethod.PATCH, "/api/attendances", "/api/attendances/**").hasAnyRole(DefaultRoleNames.ADMIN, DefaultRoleNames.MANAGER)
                     .requestMatchers(HttpMethod.DELETE, "/api/attendances", "/api/attendances/**").hasAnyRole(DefaultRoleNames.ADMIN, DefaultRoleNames.MANAGER)
-                    .requestMatchers("/api/config/init").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/config/**").hasRole(DefaultRoleNames.ADMIN)
                     .requestMatchers(HttpMethod.GET, "/uploads/**", "/api/config/logo").permitAll()
                     .requestMatchers(HttpMethod.POST, "/login").permitAll()
@@ -95,7 +97,6 @@ public class WebSecurityConfig {
         http.securityContext(security -> {
             security.securityContextRepository(securityContextRepository);
         });
-
         return http.build();
     }
 
@@ -134,7 +135,7 @@ public class WebSecurityConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("http://localhost:5173")  // Określ dokładny adres, z którego pochodzą żądania
+                        .allowedOrigins(clientUrl)  // Określ dokładny adres, z którego pochodzą żądania
                         .allowedMethods("*")
                         .allowedHeaders("*")
                         .allowCredentials(true);

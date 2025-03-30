@@ -1,29 +1,18 @@
 import {useLocation, useNavigate} from "react-router";
 import {useContext, useEffect, useState} from "react";
-import {ScheduleApiContext, TaskApiContext, TaskEventApiContext, UserApiContext} from "~/context/context";
-import type {Task} from "~/api/task-api";
+import {ScheduleApiContext} from "~/context/context";
 import {useForm} from "react-hook-form";
-import type {TaskEvent} from "~/api/task-event-api";
 import type {Schedule} from "~/api/schedule-api";
 import UserSchedulePage from "~/pages/UserSchedulePage";
 
 type FormData = {
     name: string;
     description: string;
-    /*
-    maxWorkingHoursPerDay?: number;
-    enableHolidayAssignments: "0" | "1";
-    enableWorkingSaturdays: "0" | "1";
-    enableWorkingSundays: "0" | "1";
-
-     */
 }
 
 export default function ScheduleViewPage() {
     const navigate = useNavigate();
-
     const scheduleApi = useContext(ScheduleApiContext);
-    const userApi = useContext(UserApiContext);
     const [hasMoreSchedules, setHasMoreSchedules] = useState<boolean | undefined>(undefined);
     const [scheduleList, setScheduleList] = useState<Schedule[] | undefined>(undefined);
     const { register, handleSubmit, setError, watch, formState: { isSubmitSuccessful, errors, isSubmitting } } = useForm<FormData>();
@@ -31,19 +20,13 @@ export default function ScheduleViewPage() {
     const [schedule, setSchedule] = useState<Schedule | undefined>(undefined);
     const location = useLocation();
     const [editMode, setEditMode] = useState(false);
-    const [user, setUser] = useState<string | undefined>(undefined);
-    const [userErrorMessage, setUserErrorMessage] = useState<string | undefined>(undefined);
-    const [isUserSuccessful, setIsUserSuccessful] = useState(false);
     const [scheduleDeleted, setScheduleDeleted] = useState<boolean | undefined>(undefined);
-    //const nameLikeWatch = useWatch("nameLike");
 
     useEffect(() => {
         const checkTaskParam = async () => {
-            console.log("checking the schedule param...");
             setScheduleList(undefined);
             const params = new URLSearchParams(location.search);
             const schedule = params.get("schedule");
-            console.log("schedule param = " + schedule);
             if (schedule) {
                 const response = await scheduleApi.getSchedule(schedule);
                 if (!response.raw.ok) {
@@ -70,7 +53,6 @@ export default function ScheduleViewPage() {
             setScheduleList([...response.body.content]);
             setCurrentPage(0);
         };
-        console.log("location changed");
         const init = async () => {
             if (await checkTaskParam()) {
                 return;
@@ -84,13 +66,6 @@ export default function ScheduleViewPage() {
         const response = await scheduleApi.updateSchedule(schedule?.uuid!, {
             name: formData.name ? formData.name.trim() : undefined,
             description: formData.description ? formData.description.trim() : undefined,
-            /*
-            maxWorkingHoursPerDay: formData.maxWorkingHoursPerDay,
-            enableHolidayAssignments: formData.enableHolidayAssignments === "1",
-            enableWorkingSaturdays: formData.enableWorkingSaturdays === "1",
-            enableWorkingSundays: formData.enableWorkingSundays === "1"
-
-             */
         });
         if (!response.ok) {
             setError("root", {
@@ -101,14 +76,7 @@ export default function ScheduleViewPage() {
     }
 
     const redirectToCreationPage = () => {
-        const params = new URLSearchParams(location.search);
-        const url = location.pathname + "?tab=new-schedule";
-        console.log(`Navigating to: ${url}...`);
         navigate("?tab=new-schedule");
-    }
-
-    const handleAddUser = async () => {
-        //const response = await scheduleApi.
     }
 
     const deleteSchedule = async () => {
@@ -210,13 +178,13 @@ export default function ScheduleViewPage() {
                                         Edit
                                     </button>
                                 </div>
-                                {scheduleDeleted && <div className={"text-green-500 w-full text-center content-center"}>Schedule delete successfully</div>}
+                                {scheduleDeleted && <div className={"text-green-500 w-full text-center content-center"}>Schedule deleted successfully</div>}
                                 <div className={"h-fit w-96 flex flex-col space-y-2"}>
                                     <div className={"h-fit w-full"}>
                                         <div>
                                             Name
                                         </div>
-                                        <div className={"h-10 w-full bg-gray-200 rounded content-center px-1"}>
+                                        <div className={"min-h-10 h-fit text-wrap w-full bg-gray-200 rounded content-center px-1"}>
                                             {schedule.name}
                                         </div>
                                     </div>
@@ -224,7 +192,7 @@ export default function ScheduleViewPage() {
                                         <div>
                                             Description
                                         </div>
-                                        <div className={"h-10 w-full bg-gray-200 rounded content-center px-1"}>
+                                        <div className={"min-h-10 h-fit text-wrap w-full bg-gray-200 rounded content-center px-1"}>
                                             {schedule.description}
                                         </div>
                                     </div>

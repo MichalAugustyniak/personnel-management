@@ -39,7 +39,6 @@ public class DefaultAttendanceController implements AttendanceController {
             @RequestParam(required = false) Integer pageSize,
             @RequestParam(required = false) String user,
             @RequestParam(required = false) UUID scheduleDayUUID,
-            @RequestParam(required = false) UUID absenceExcuseUUID,
             @RequestParam(required = false) UUID attendanceStatusUUID
     ) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -51,7 +50,6 @@ public class DefaultAttendanceController implements AttendanceController {
                                 pageSize,
                                 user,
                                 scheduleDayUUID,
-                                absenceExcuseUUID,
                                 attendanceStatusUUID
                         )
                 )

@@ -33,7 +33,7 @@ public class TaskEvent {
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
-    @OneToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY, mappedBy = "taskEvent")
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "taskEvent")
     private Set<Task> tasks = new HashSet<>();
 
     @Override

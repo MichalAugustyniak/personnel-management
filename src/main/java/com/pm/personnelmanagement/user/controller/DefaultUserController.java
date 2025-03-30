@@ -1,6 +1,6 @@
 package com.pm.personnelmanagement.user.controller;
 
-import com.pm.personnelmanagement.permission.exception.UnauthorizedException;
+import com.pm.personnelmanagement.common.UnauthorizedException;
 import com.pm.personnelmanagement.task.dto.AuthenticatedRequest;
 import com.pm.personnelmanagement.user.constant.DefaultRoleNames;
 import com.pm.personnelmanagement.user.dto.*;

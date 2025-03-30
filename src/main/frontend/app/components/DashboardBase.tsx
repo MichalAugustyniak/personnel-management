@@ -68,7 +68,6 @@ export default function DashboardBase(props: Props) {
     const [optionContainers, setOptionContainers] = useState<OptionContainer2[] | undefined>(undefined);
 
     useEffect(() => {
-        //console.log(`Tab name: ${currentTab.name}`);
         let optContainers: OptionContainer2[] = [];
         const tempCurrentTabSelectedOptionMap: Map<Tab, number> = new Map();
         let count = 1;
@@ -95,12 +94,8 @@ export default function DashboardBase(props: Props) {
             setOptionContainers(optContainers);
         }
         setCurrentTabSelectedOptionMap(tempCurrentTabSelectedOptionMap);
-        //console.log(tempCurrentTabSelectedOptionMap.forEach((value, key) => console.log(`value: ${value}  key: ${key.name}`)));
-        //console.log("optContainers.length = " + optContainers.length);
         const tabParam = searchParams.get("tab");
-        //console.log(`tabParam = ${tabParam}`);
         let tab: Tab | undefined = tabParam === "home" ? {name: "home", content: props.homeTab} : undefined;
-        //searchParams.forEach(param => console.log(param));
         for (const optionContainer of props.optionContainers) {
             for (const option of optionContainer.options) {
                 if (option.tab.name === tabParam) {
@@ -113,17 +108,11 @@ export default function DashboardBase(props: Props) {
                 break;
             }
         }
-        //console.log(`props.optionContainers.length: ${props.optionContainers.length}`);
 
         for (const optionContainer of props.optionContainers) {
             for (const option of optionContainer.options) {
-                //console.log("tab " + currentTab.name);
-                //console.log(`option.tab.name=${option.tab.name} currentTab.name=${currentTab.name}`);
                 if (option.tab === tab ? tab : currentTab) {
-                    //console.log("setting to: " + tempCurrentTabSelectedOptionMap.get(option.tab));
                     if (!tempCurrentTabSelectedOptionMap.get(option.tab)) {
-                        //console.log("currentTabSelectedOptionMap.get(option.tab) is undefined but the map is...");
-                        //console.log(`map length = ${tempCurrentTabSelectedOptionMap.size}`);
                     }
                     setSelectedOptionId(tempCurrentTabSelectedOptionMap.get(tab ? tab : currentTab));
                     break;
@@ -135,40 +124,15 @@ export default function DashboardBase(props: Props) {
 
     useEffect(() => {
         if (!isRendered) {
-            //console.log("rendered first time");
             setIsRendered(true);
             return;
         }
-        //console.log("dalej");
-        //console.log("not rendered first time");
-        //console.log("redirecting to: " + "?tab=" + currentTab.name);
         navigate("?tab=" + currentTab.name);
     }, [currentTab]);
 
     useEffect(() => {
         setSelectedOptionContextId({state: selectedOptionId, setState: setSelectedOptionId});
-        //console.log("selected option id: " + selectedOptionId);
-        //console.log("selected option id from context: " + selectedOptionContextId.state);
     }, [selectedOptionId]);
-
-
-    //const params = useParams();
-    //let tab = params.tab || "home";
-    //const [currentPageIndex, setCurrentPageIndex] = useState<number>();
-    //const [currentPage, setCurrentPage] = useState<ReactNode>();
-    /*
-    if (!tab) {
-        setCurrentPageIndex(0);
-        setCurrentPage(props.pages[0]);
-    }
-
-     */
-
-
-    //console.log("Rendering dashboard...");
-
-
-
     return (
         <SelectedOptionIdContext.Provider value={selectedOptionContextId}>
             <div className={"flex flex-row"}>

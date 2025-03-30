@@ -11,7 +11,6 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "schedule_days")
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 public class ScheduleDay {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,11 +25,10 @@ public class ScheduleDay {
     @Column(nullable = false)
     private LocalDateTime endDateTime;
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "scheduleDay", orphanRemoval = true)
+    @OrderBy("startDateTime asc")
     private Set<WorkBreak> workBreaks = new HashSet<>();
     @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH}, fetch = FetchType.LAZY)
     private ShiftType shiftType;
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "scheduleDay", orphanRemoval = true)
-    private Set<Substitution> substitutions = new HashSet<>();
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "scheduleDay", orphanRemoval = true)
     private Set<Attendance> attendances = new HashSet<>();
 
@@ -48,14 +46,6 @@ public class ScheduleDay {
 
     public void setShiftType(ShiftType shiftType) {
         this.shiftType = shiftType;
-    }
-
-    public Set<Substitution> getSubstitutions() {
-        return substitutions;
-    }
-
-    public void setSubstitutions(Set<Substitution> substitutions) {
-        this.substitutions = substitutions;
     }
 
     public LocalDateTime getStartDateTime() {

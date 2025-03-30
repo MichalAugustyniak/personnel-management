@@ -15,7 +15,7 @@ public class AttendanceStatus {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(nullable = false)
-    private String name;    // Obecność, Nieobecność nieusprawiedliwiona, Nieobecność usprawiedliwiona, Urlop bezpłatny, Urlop płatny, Urlop chorobowy, L4 etc.
+    private String name;
     private String description;
     @OneToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY, mappedBy = "attendanceStatus")
     private Set<Attendance> attendances = new HashSet<>();

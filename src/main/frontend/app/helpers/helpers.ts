@@ -1,6 +1,5 @@
 import type {Address, AddressApi, AddressCreationRequest, AddressesRequest} from "~/api/address-api";
 import {trimOrThrow, trimString} from "~/util/utils";
-import {addressApi} from "~/context/context";
 
 export const mapToCreationRequest = (request: AddressesRequest): AddressCreationRequest=> {
     return {

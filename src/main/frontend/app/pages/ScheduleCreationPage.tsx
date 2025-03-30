@@ -248,13 +248,10 @@ for (let i = 1; i < 25; i++) {
 
 function getWeekStart(dateString: string): string {
     const date = new Date(dateString);
-    const day = date.getDay(); // 0 (niedziela) - 6 (sobota)
-
-    // Przesuwamy do poniedziałku (jeśli niedziela, cofamy 6 dni)
+    const day = date.getDay();
     const diff = day === 0 ? -6 : 1 - day;
     date.setDate(date.getDate() + diff);
-
-    return date.toISOString().split('T')[0]; // Zwraca YYYY-MM-DD
+    return date.toISOString().split('T')[0];
 }
 
 export default function ScheduleCreationPage() {
@@ -303,12 +300,10 @@ export default function ScheduleCreationPage() {
             return undefined;
         }
         const updated = new Date(date);
-        console.log(`updated from string: ${date} to Date: ${updated}`);
         const [startHours, startMinutes] = startTime.split(":").map(Number);
         updated.setHours(startHours + 1);
         updated.setMinutes(startMinutes);
         updated.setSeconds(0);
-        console.log(`updateDayStartTime: ${updated}`);
         return updated;
     }
 
@@ -329,8 +324,6 @@ export default function ScheduleCreationPage() {
     }
 
     useEffect(() => {
-        console.log("Changing the weeks from creation page");
-        console.log(weeks);
         if (!scheduleStartDate) {
             return;
         }
@@ -471,28 +464,10 @@ export default function ScheduleCreationPage() {
                 mondayStartDate = new Date(new Date(mondayStartDate).setDate(new Date(mondayStartDate).getDate() + 7)).toDateString();
             }
         }
-        console.log("created schedule from template:");
-        console.log(schedule);
         setScheduleWeeks(schedule);
     }, [weeks, patternRepeats, scheduleStartDate]);
 
-    /*
-    useEffect(() => {
-        if (patternRepeats < 0) {
-            throw new Error("Pattern repeats cannot be negative");
-        }
-        console.log(`patternRepeats: ${patternRepeats}`);
-        console.log(`scheduleStartDate: ${scheduleStartDate}`);
-        if (scheduleStartDate) {
-            console.log(`day of week: ${new Date(scheduleStartDate).getDay()}`);
-            console.log(`day of week: ${new Date(scheduleStartDate).getDate()}`);
-        }
-    }, [patternRepeats, scheduleStartDate]);
-
-     */
-
     const onSubmit: SubmitHandler<FormData> = async (data: FormData) => {
-        console.log(data);
         if (!scheduleStartDate) {
             const message = "Schedule start date is required";
             setError("root", {
@@ -535,8 +510,6 @@ export default function ScheduleCreationPage() {
             users: [],
             scheduleDays: scheduleDays
         }
-        console.log("Request body to be sent:");
-        console.log(request);
         const response = await scheduleApi.createSchedule(request);
         if (response.raw.status !== 201) {
             const message = "Something went wrong white creating a schedule";
@@ -545,7 +518,6 @@ export default function ScheduleCreationPage() {
             });
             throw new Error(message);
         }
-        console.log(`uuid of the created schedule: ${response.body.scheduleUUID}`);
     }
 
 

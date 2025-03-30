@@ -1,7 +1,7 @@
 package com.pm.personnelmanagement.task.service;
 
 import com.pm.personnelmanagement.common.dto.PagedResponse;
-import com.pm.personnelmanagement.permission.exception.UnauthorizedException;
+import com.pm.personnelmanagement.common.UnauthorizedException;
 import com.pm.personnelmanagement.task.dto.*;
 import com.pm.personnelmanagement.task.mapper.TaskMapper;
 import com.pm.personnelmanagement.task.model.Task;
@@ -10,11 +10,9 @@ import com.pm.personnelmanagement.task.util.TaskUtils;
 import com.pm.personnelmanagement.taskevent.model.TaskEvent;
 import com.pm.personnelmanagement.taskevent.util.TaskEventUtils;
 import com.pm.personnelmanagement.user.constant.DefaultRoleNames;
-import com.pm.personnelmanagement.user.dto.UserDTO;
 import com.pm.personnelmanagement.user.mapping.UserMapper;
 import com.pm.personnelmanagement.user.model.User;
 import com.pm.personnelmanagement.user.util.UserUtils;
-import jakarta.persistence.criteria.Join;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.data.domain.Page;
@@ -93,7 +91,7 @@ public class DefaultTaskService implements TaskService {
         User user = userUtils.fetchUserByUsername(request.principalName());
         Task task = taskUtils.fetchTask(request.request().uuid());
         if (user.getRole().getName().equals(DefaultRoleNames.MANAGER) && !task.getCreatedBy().equals(user)) {
-            throw new UnauthorizedException("Only owner do that");
+            throw new UnauthorizedException("Only owner can do that");
         }
         if (!user.getRole().getName().equals(DefaultRoleNames.ADMIN)) {
             throw new UnauthorizedException("You're not authorized to do that");
@@ -103,11 +101,7 @@ public class DefaultTaskService implements TaskService {
 
     @Override
     public TaskDTO getTask(@NotNull AuthenticatedRequest<TaskRequest> request) {
-        User user = userUtils.fetchUserByUsername(request.principalName());
         Task task = taskUtils.fetchTask(request.request().uuid());
-        if (!task.getUsers().contains(user) && !task.getCreatedBy().equals(user) && !user.getRole().getName().equals(DefaultRoleNames.ADMIN)) {
-            throw new UnauthorizedException("You have no access to that resource");
-        }
         return TaskMapper.map(task);
     }
 
@@ -115,24 +109,7 @@ public class DefaultTaskService implements TaskService {
     public PagedResponse<TaskDTO> getAllTasks(@NotNull AuthenticatedRequest <TasksRequestFilters> request) {
         int pageNumber = Optional.ofNullable(request.request().pageNumber()).orElse(0);
         int pageSize = Optional.ofNullable(request.request().pageSize()).orElse(10);
-        User user = userUtils.fetchUserByUsername(request.principalName());
         Specification<Task> specification = Specification.where(null);
-        boolean isAdminOrManager = user.getRole().getName().equals(DefaultRoleNames.ADMIN) || user.getRole().getName().equals(DefaultRoleNames.MANAGER);
-        /*
-        if (user.getRole().getName().equals(DefaultRoleNames.EMPLOYEE)) {
-            Specification<Task> hasUser = (root, query, criteriaBuilder) -> {
-                Join<Task, User> userJoin = root.join("users");
-                return criteriaBuilder.equal(userJoin.get("id"), user.getId());
-            };
-            specification = specification.and(hasUser);
-        }
-        else if (user.getRole().getName().equals(DefaultRoleNames.MANAGER)) {
-            Specification<Task> hasOwner = (root, query, criteriaBuilder) ->
-                    criteriaBuilder.equal(root.get("createdBy"), user);
-            specification = specification.and(hasOwner);
-        }
-
-         */
         System.out.println(request.request());
         if (request.request().nameLike() != null) {
             Specification<Task> hasNameLike = (root, query, criteriaBuilder) ->
@@ -210,7 +187,6 @@ public class DefaultTaskService implements TaskService {
             throw new UnauthorizedException("You has no access to do that");
         }
         task.getUsers().remove(user);
-        // todo when auth is set: check if user exists
         taskRepository.save(task);
     }
 

@@ -63,7 +63,7 @@ public class DefaultShiftTypeService implements ShiftTypeService {
     }
 
     @Override
-    public void deleteFilter(@NotNull @Valid ShiftTypeDeletionRequest dto) {
+    public void deleteShiftType(@NotNull @Valid ShiftTypeDeletionRequest dto) {
         ShiftType shiftType = shiftTypeUtils.fetchShiftType(dto.uuid());
         if (!shiftType.getScheduleDays().isEmpty()) {
             throw new CannotDeleteShiftType("Cannot delete: in use");

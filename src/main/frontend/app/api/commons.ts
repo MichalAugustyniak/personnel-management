@@ -10,8 +10,15 @@ export interface Page<T> {
 export abstract class ApiBase {
     public readonly url: string;
 
+    /*
     public constructor(address: string, isSecure: boolean) {
         this.url = `${isSecure ? "https" : "http"}://${address}`;
+    }
+
+     */
+
+    public constructor(url: string) {
+        this.url = url;
     }
 }
 

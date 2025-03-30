@@ -7,7 +7,6 @@ public record AttendancesRequest(
         Integer pageSize,
         String user,
         UUID scheduleDayUUID,
-        UUID absenceExcuseUUID,
         UUID attendanceStatusUUID
 ) {
 }

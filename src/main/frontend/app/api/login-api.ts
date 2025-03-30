@@ -1,3 +1,5 @@
+import {ApiBase} from "~/api/commons";
+
 export interface LoginRequest {
     username: string;
     password: string;
@@ -14,16 +16,8 @@ export interface LoginApi {
     session(): Promise<Response>;
 }
 
-export class LoginApiV1 implements LoginApi {
-    private readonly url: string;
-
-    public constructor(address: string, isSecure: boolean) {
-        this.url = (isSecure ? "https" : "http") + `://${address}`;
-    }
-
+export class LoginApiV1 extends ApiBase implements LoginApi {
     public async login(request: LoginRequest): Promise<Response> {
-        console.log(`username=${request.username}\tpassword=${request.password}`);
-        console.log(this.url.toString());
         return await fetch(`${this.url}/login`, {
             method: "POST",
             credentials: "include",

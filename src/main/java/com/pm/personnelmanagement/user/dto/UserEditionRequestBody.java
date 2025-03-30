@@ -16,7 +16,6 @@ public record UserEditionRequestBody(
         String firstName,
         String middleName,
         String lastName,
-        String pesel,
         UUID addressUUID,
         UUID additionalAddressUUID,
         String email,

@@ -1,7 +1,5 @@
 package com.pm.personnelmanagement.schedule.utils;
 
-import com.pm.personnelmanagement.common.NullChecker;
-import com.pm.personnelmanagement.schedule.exception.AbsenceExcuseNotFoundException;
 import com.pm.personnelmanagement.schedule.exception.AttendanceNotFoundException;
 import com.pm.personnelmanagement.schedule.model.Attendance;
 import com.pm.personnelmanagement.schedule.repository.AttendanceRepository;
@@ -19,9 +17,8 @@ public class AttendanceUtils {
     }
 
     public Attendance fetchAttendance(UUID uuid) {
-        NullChecker.validate(uuid, "Argument uuid");
         return attendanceRepository.findByUuid(uuid).orElseThrow(
-                () -> new AbsenceExcuseNotFoundException(String.format("Attendance excuse of uuid %s not found", uuid))
+                () -> new AttendanceNotFoundException(String.format("Attendance of uuid %s not found", uuid))
         );
     }
 

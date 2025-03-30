@@ -1,9 +1,8 @@
 package com.pm.personnelmanagement.user.service;
 
+import com.pm.personnelmanagement.common.NotImplementedException;
 import com.pm.personnelmanagement.common.util.SpecificationUtils;
-import com.pm.personnelmanagement.file.exception.NotImplementedException;
-import com.pm.personnelmanagement.permission.constant.ResourceTypes;
-import com.pm.personnelmanagement.permission.exception.UnauthorizedException;
+import com.pm.personnelmanagement.common.UnauthorizedException;
 import com.pm.personnelmanagement.task.dto.AuthenticatedRequest;
 import com.pm.personnelmanagement.user.component.UsernameGenerator;
 import com.pm.personnelmanagement.user.constant.DefaultRoleNames;
@@ -18,8 +17,6 @@ import com.pm.personnelmanagement.user.util.AddressUtils;
 import com.pm.personnelmanagement.user.util.RoleUtils;
 import com.pm.personnelmanagement.user.util.UserUtils;
 import jakarta.persistence.criteria.Predicate;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -34,7 +31,6 @@ import java.util.function.Consumer;
 @Validated
 @Service
 public class DefaultUserService implements UserService {
-    private final static String CONTEXT_TYPE = ResourceTypes.USER;
     private final UserUtils userUtils;
     private final RoleUtils roleUtils;
     private final AddressUtils addressUtils;
@@ -205,48 +201,6 @@ public class DefaultUserService implements UserService {
             };
             specification = specification.and(hasLikePattern);
         }
-        /*
-        Optional.ofNullable(request.request().addressUUID()).ifPresent(addressUUID -> {
-            Specification<User> hasAddress = (root, query, criteriaBuilder) ->
-                    criteriaBuilder.equal(root.get("address").get("uuid"), addressUUID);
-            specification.and(hasAddress);
-        });
-        Optional.ofNullable(request.request().sex()).ifPresent(sex -> {
-            Specification<User> hasSex = (root, query, criteriaBuilder) ->
-                    criteriaBuilder.equal(root.get("sex"), sex);
-            specification.and(hasSex);
-        });
-        Optional.ofNullable(request.request().isActive()).ifPresent(isActive -> {
-            Specification<User> hasActiveStatus = (root, query, criteriaBuilder) ->
-                    criteriaBuilder.equal(root.get("isActive"), isActive);
-            specification.and(hasActiveStatus);
-        });
-        Optional.ofNullable(request.request().role()).ifPresent(role -> {
-            Specification<User> hasRole = (root, query, criteriaBuilder) ->
-                    criteriaBuilder.equal(root.get("role").get("name"), role);
-            specification.and(hasRole);
-        });
-        Optional.ofNullable(request.request().like()).ifPresent(like -> {
-            Specification<User> hasLikePattern = (root, query, criteriaBuilder) -> {
-                String likePattern = "%" + like.toLowerCase() + "%";
-                Predicate usernamePredicate = criteriaBuilder.like(
-                        criteriaBuilder.lower(root.get("username")),
-                        likePattern
-                );
-                Predicate fullNamePredicate = criteriaBuilder.like(
-                        criteriaBuilder.lower(
-                                criteriaBuilder.concat(
-                                        criteriaBuilder.concat(
-                                                root.get("firstName"), root.get("middleName")),
-                                        root.get("lastName")
-                                )
-                        ), likePattern);
-                return criteriaBuilder.or(usernamePredicate, fullNamePredicate);
-            };
-            specification.and(hasLikePattern);
-        });
-
-         */
         return specification;
     }
 
