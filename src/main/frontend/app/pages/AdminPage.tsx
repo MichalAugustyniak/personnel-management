@@ -186,7 +186,6 @@ export default function AdminPage() {
         if (!response.raw.ok) {
             throw new Error("Something went wrong while fetching the logo");
         }
-        console.log(logoApi.getHost() + response.body.propertyValue);
         setLogo(logoApi.getHost() + response.body.propertyValue);
     }
 

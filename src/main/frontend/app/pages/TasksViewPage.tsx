@@ -30,7 +30,6 @@ export default function TasksViewPage() {
         register,
         handleSubmit,
         setError,
-        watch,
         formState: {isSubmitSuccessful, errors, isSubmitting}
     } = useForm<FormData>();
     const [currentPage, setCurrentPage] = useState<number | undefined>(undefined);
@@ -42,11 +41,10 @@ export default function TasksViewPage() {
     const [users, setUsers] = useState<SimplifiedUser[] | undefined>(undefined);
     const [taskEvent, setTaskEvent] = useState<TaskEvent | undefined>(undefined);
     const [taskEvents, setTaskEvents] = useState<TaskEvent[] | undefined>(undefined);
-    //const nameLikeWatch = useWatch("nameLike");
+    const [isDeleted, setIsDeleted] = useState<boolean | undefined>(undefined);
 
     useEffect(() => {
         const checkTaskParam = async () => {
-            console.log("checking the task...");
             setTaskList(undefined);
             const params = new URLSearchParams(location.search);
             const taskParam = params.get("task");
@@ -69,7 +67,6 @@ export default function TasksViewPage() {
             }
             const response = await taskApi.getTasks({
                 user: session.session.roles.includes(DefaultRoles.EMPLOYEE) ? session.session.username : undefined,
-                createdBy: session.session.roles.includes(DefaultRoles.MANAGER) ? session.session.username : undefined,
                 pageSize: 50,
                 pageNumber: 0
             });
@@ -84,7 +81,6 @@ export default function TasksViewPage() {
             setTaskList([...response.body.content]);
             setCurrentPage(0);
         };
-        console.log("location changed");
         const init = async () => {
             if (await checkTaskParam()) {
                 return;
@@ -100,24 +96,6 @@ export default function TasksViewPage() {
         }
         fetchTaskEvent();
     }, [task]);
-
-    const fetchTaskEvents = async () => {
-        if (!task) {
-            throw new Error("Task is undefined");
-        }
-        if (!session) {
-            throw new Error("Session is undefined");
-        }
-        const response = await taskEventApi.getTaskEvents({
-            createdBy: session.session && session.session.roles.includes(DefaultRoles.MANAGER) ? session.session.username : undefined,
-            pageNumber: 0,
-            pageSize: 500
-        });
-        if (!response.raw.ok) {
-            throw new Error("Something went wrong while fetching the task events");
-        }
-        setTaskEvents([...response.body.content]);
-    }
 
     const fetchTaskEvent = async () => {
         if (!task) {
@@ -172,19 +150,6 @@ export default function TasksViewPage() {
         setUserAddingMode(false);
     }
 
-    const assignTaskEvent = async (taskEvent: TaskEvent) => {
-        if (!task) {
-            throw new Error("Task is undefined");
-        }
-        const response = await taskApi.patchTask({
-            taskEventUUID: taskEvent.uuid
-        }, task.uuid);
-        if (!response.ok) {
-            throw new Error("Something went wrong while assigning the task event");
-        }
-        setTaskEvent(taskEvent);
-    }
-
     useEffect(() => {
         if (!userAddingMode) {
             return;
@@ -218,10 +183,20 @@ export default function TasksViewPage() {
     }
 
     const redirectToCreationPage = () => {
-        const params = new URLSearchParams(location.search);
         const url = location.pathname + "?tab=new-task";
         console.log(`Navigating to: ${url}...`);
         navigate("?tab=new-task");
+    }
+
+    const deleteTask = async () => {
+        if (!task) {
+            throw new Error("Cannot delete the task: the task is undefined");
+        }
+        const response = await taskApi.deleteTask(task.uuid);
+        if (!response.ok) {
+            throw new Error("Something went wrong while deleting the task");
+        }
+        setIsDeleted(true);
     }
 
     return (
@@ -318,11 +293,11 @@ export default function TasksViewPage() {
                             </div>}
                         {!taskList && task && !editMode
                             && <div>
-                                {session.session && (session.session.roles.includes(DefaultRoles.ADMIN) || session.session.roles.includes(DefaultRoles.MANAGER)) &&
+                                {session.session && (session.session.roles.includes(DefaultRoles.ADMIN) || task.createdBy === session.session.username) &&
                                     <div className={"h-fit w-full flex flex-row justify-between mb-2"}>
                                         <button
                                             className={"h-10 w-20 rounded bg-red-500 hover:bg-red-600 text-white font-bold"}
-                                            onClick={() => setEditMode(true)}>
+                                            onClick={deleteTask}>
                                             Delete
                                         </button>
                                         <button
@@ -331,12 +306,13 @@ export default function TasksViewPage() {
                                             Edit
                                         </button>
                                     </div>}
+                                {isDeleted && <div className={"h-fit w-full text-center content-center text-green-500"}>Task deleted successfully</div>}
                                 <div className={"h-fit w-96 flex flex-col space-y-2"}>
                                     <div className={"h-fit w-full"}>
                                         <div>
                                             Name
                                         </div>
-                                        <div className={"h-10 w-full bg-gray-200 rounded content-center px-1"}>
+                                        <div className={"min-h-10 h-fit w-full bg-gray-200 rounded content-center px-1 text-wrap"}>
                                             {task.name}
                                         </div>
                                     </div>
@@ -344,7 +320,7 @@ export default function TasksViewPage() {
                                         <div>
                                             Description
                                         </div>
-                                        <div className={"h-10 w-full bg-gray-200 rounded content-center px-1"}>
+                                        <div className={"min-h-10 h-fit w-full bg-gray-200 rounded content-center px-1 text-wrap"}>
                                             {task.description}
                                         </div>
                                     </div>

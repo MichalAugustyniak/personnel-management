@@ -40,13 +40,9 @@ export default function ScheduleCreatorPatternTile({weeks, setter, weekKey, dayK
         watch,
         formState: {isSubmitting, errors, isSubmitSuccessful}
     } = useForm<FormData>();
-    const watchIsPaid = watch("isPaid");
-    const watchStart = watch("start");
-    const watchEnd = watch("end");
 
     const handleFocus = () => setIsFocused(true);
     const handleBlur = (e: FocusEvent<HTMLDivElement, Element>) => {
-        // Jeśli focus zostaje na jednym z inputów, nie ustawiamy isFocused na false
         if (!e.currentTarget.contains(e.relatedTarget)) {
             setIsFocused(false);
         }
@@ -98,16 +94,6 @@ export default function ScheduleCreatorPatternTile({weeks, setter, weekKey, dayK
             throw new Error(`Cannot find day of key ${dayKey}`);
         }
         return currentDay;
-        /*
-        return new Day(
-            currentDay.key,
-            currentDay.startDateTime,
-            currentDay.endDateTime,
-            currentDay.shiftType,
-            currentDay.workBreaks
-        );
-
-         */
     }
 
     const handleUpdateDay = () => {
@@ -117,7 +103,6 @@ export default function ScheduleCreatorPatternTile({weeks, setter, weekKey, dayK
     }
 
     const onSubmit = (formData: FormData) => {
-        //console.log(formData);
         const [startHours, startMinutes] = formData.start.split(":").map(Number);
         const [endHours, endMinutes] = formData.end.split(":").map(Number);
         const startDateTime = new Date();
@@ -135,7 +120,6 @@ export default function ScheduleCreatorPatternTile({weeks, setter, weekKey, dayK
         endDateTime.setMinutes(endMinutes);
         endDateTime.setSeconds(0);
         if (startDateTime > endDateTime) {
-            //console.log("nastepny dzien");
             endDateTime.setDate(endDateTime.getDate() + 1);
         }
         for (const wb of workBreaks) {
@@ -161,25 +145,7 @@ export default function ScheduleCreatorPatternTile({weeks, setter, weekKey, dayK
         setWorkBreaks((workBreaks) => [...workBreaks, workBreak]);
     }
 
-    /*
-    useEffect(() => {
-        console.log(`isSubmitSuccessful: ${isSubmitSuccessful}`);
-        if (!isSubmitSuccessful) {
-            return;
-        }
-        setCreateMode(false);
-    }, [isSubmitSuccessful]);
-
-     */
-
     const save = () => {
-        //console.log("Shift type:");
-        //console.log(selectedShiftType);
-        //console.log("Work breaks:");
-        //console.log(workBreaks);
-        //console.log("Day:");
-        //console.log(day);
-        //console.log("Copying the weeks...");
         if (!selectedShiftType) {
             setTab("shift-type");
             return;
@@ -188,7 +154,6 @@ export default function ScheduleCreatorPatternTile({weeks, setter, weekKey, dayK
         const foundDay = findDay(copiedWeeks);
         foundDay.shiftType = selectedShiftType;
         foundDay.workBreaks = [...workBreaks];
-        //console.log(copiedWeeks);
         setter(copyWeeks);
     }
 
@@ -200,7 +165,6 @@ export default function ScheduleCreatorPatternTile({weeks, setter, weekKey, dayK
         foundDay.shiftType = undefined;
         foundDay.workBreaks = [];
         setDay(foundDay);
-        //console.log(copiedWeeks);
         setter(copyWeeks);
     }
 
@@ -209,7 +173,6 @@ export default function ScheduleCreatorPatternTile({weeks, setter, weekKey, dayK
         const currentDay = findDay(weeks);
         setDay(currentDay);
         setWorkBreaks([...currentDay.workBreaks]);
-        console.log(`currentDay.shiftType: ${currentDay.shiftType?.name}`);
         setSelectedShiftType(currentDay.shiftType);
     }, [weeks]);
 

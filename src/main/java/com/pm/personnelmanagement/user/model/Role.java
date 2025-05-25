@@ -19,7 +19,7 @@ public class Role {
     private UUID uuid;
     @Column(nullable = false, unique = true)
     private String name;
-    @OneToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY, mappedBy = "role")
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "role")
     private Set<User> users = new HashSet<>();
 
     public Long getId() {

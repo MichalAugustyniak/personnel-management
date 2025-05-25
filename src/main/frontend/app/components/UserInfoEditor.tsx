@@ -121,7 +121,7 @@ export default function UserInfoEditor({uuid}: Props) {
     const [additionalAddress, setAdditionalAddress] = useState<Address | undefined>(undefined);
     const [isAdditionalAddressFetched, setIsAdditionalAddressFetched] = useState(false);
     const [user, setUser] = useState<User | undefined>(undefined);
-    const { register, handleSubmit, formState: { errors, isSubmitting, isValid } } = useForm<FormData>();
+    const { register, handleSubmit, setError, formState: { errors, isSubmitting, isValid, isSubmitSuccessful } } = useForm<FormData>();
 
     const onSubmit: SubmitHandler<FormData> = async (data) => {
         const processedFormData = processFormData(data);
@@ -161,9 +161,17 @@ export default function UserInfoEditor({uuid}: Props) {
             ...processedFormData,
             addressUUID: primaryAddressUUID,
             additionalAddressUUID: additionalAddressUUID,
-            isActive: !!processedFormData.isActive
+            isActive: processedFormData.isActive === "true"
         };
-        await userApi.updateUser(user?.uuid!, userUpdateRequest);
+        console.log(userUpdateRequest);
+        const response = await userApi.updateUser(user?.uuid!, userUpdateRequest);
+        if (!response.ok) {
+            const message = "Something went wrong while deleting the user";
+            setError("root", {
+                message: message
+            })
+            throw new Error(message);
+        }
     };
 
     useEffect(() => {
@@ -242,7 +250,7 @@ export default function UserInfoEditor({uuid}: Props) {
                                     if (value === "" || value === undefined) {
                                         return true;
                                     }
-                                    if (value.trim().length < 4) {
+                                    if (value.trim().length < 8) {
                                         return "Password length must be at least 4 characters long";
                                     }
                                     return true;
@@ -382,8 +390,8 @@ export default function UserInfoEditor({uuid}: Props) {
                             </div>
                             <select {...register("isActive")} defaultValue={user.isActive ? 1 : 0}
                                     className={"bg-indigo-100 rounded w-full px-1"}>
-                                <option value={1}>Active</option>
-                                <option value={0}>Inactive</option>
+                                <option value={"true"}>Active</option>
+                                <option value={"false"}>Inactive</option>
                             </select>
                         </div>
 
@@ -395,6 +403,8 @@ export default function UserInfoEditor({uuid}: Props) {
                     </form>
                     : null
                 }
+                {errors.root && <div className={"h-fit w-full text-center content-center text-red-500"}>{errors.root.message}</div>}
+                {isSubmitSuccessful && <div className={"h-fit w-full text-center content-center text-green-500"}>User edited successfully</div>}
             </div>
         </div>
     );

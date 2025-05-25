@@ -27,14 +27,44 @@ export default function AttendanceViewPage() {
     const [selectedAttendanceStatus, setSelectedAttendanceStatus] = useState<AttendanceStatus | undefined>(undefined);
     const [attendanceStatuses, setAttendanceStatuses] = useState<AttendanceStatus[] | undefined>(undefined);
     const [isDeleted, setIsDeleted] = useState<boolean | undefined>(undefined);
-    //const nameLikeWatch = useWatch("nameLike");
+    const [username, setUsername] = useState("");
+
+    const fetchAttendances = async () => {
+        if (attendance) {
+            return;
+        }
+        if (!session.session) {
+            throw new Error("Session is undefined");
+        }
+        console.log("request");
+        console.log({
+            user: session.session.roles.includes(DefaultRoles.EMPLOYEE) ? session.session.username : (username ? username : undefined),
+            pageSize: 500,
+            pageNumber: 0
+        });
+        const response = await attendanceApi.getAttendances({
+            user: session.session.roles.includes(DefaultRoles.EMPLOYEE) ? session.session.username : (username ? username : undefined),
+            pageSize: 500,
+            pageNumber: 0
+        });
+        console.log("response");
+        console.log(response.body);
+        if (!response.raw.ok && response.raw.status !== 404) {
+            throw new Error("Something went wrong while fetching attendances");
+        }
+        if (response.body.totalPages > 1) {
+            setHasMoreAttendances(true);
+        } else {
+            setHasMoreAttendances(false);
+        }
+        setAttendanceList([...response.body.content]);
+    };
 
     useEffect(() => {
         const checkParam = async () => {
             setAttendanceList(undefined);
             const params = new URLSearchParams(location.search);
             const param = params.get("attendance");
-            console.log("attendance param = " + param);
             if (param) {
                 const response = await attendanceApi.getAttendance(param);
                 if (!response.raw.ok) {
@@ -45,29 +75,6 @@ export default function AttendanceViewPage() {
             }
             return false;
         }
-        const fetchAttendances = async () => {
-            if (currentPage !== undefined || attendance) {
-                return;
-            }
-            if (!session.session) {
-                throw new Error("Session is undefined");
-            }
-            const response = await attendanceApi.getAttendances({
-                user: session.session.roles.includes(DefaultRoles.EMPLOYEE) ? session.session.username : undefined,
-                pageSize: 500,
-                pageNumber: 0
-            });
-            if (!response.raw.ok) {
-                throw new Error("Something went wrong while fetching attendances");
-            }
-            if (response.body.totalPages > 1) {
-                setHasMoreAttendances(true);
-            } else {
-                setHasMoreAttendances(false);
-            }
-            setAttendanceList([...response.body.content]);
-            setCurrentPage(0);
-        };
         const init = async () => {
             if (await checkParam()) {
                 return;
@@ -132,6 +139,10 @@ export default function AttendanceViewPage() {
         }
     }, [attendanceStatuses]);
 
+    useEffect(() => {
+        fetchAttendances();
+    }, [username]);
+
     const redirectToCreationPage = () => {
         const params = new URLSearchParams(location.search);
         const url = location.pathname + "?tab=new-attendance";
@@ -172,7 +183,8 @@ export default function AttendanceViewPage() {
                                         <div className={"h-full w-fit content-center p-2"}>
                                             <input
                                                 className={"h-10 w-full rounded bg-gray-200 border-2 border-gray-200 focus:bg-white transition-all duration-200 outline-none px-1"}
-                                                placeholder={"username"}/>
+                                                placeholder={"username"}
+                                                onChange={event => setUsername(event.target.value)}/>
                                         </div>
                                     </div>}
                                 <div className={"h-fit w-fit bg-blue-600 flex flex-row font-bold text-white rounded-t"}>

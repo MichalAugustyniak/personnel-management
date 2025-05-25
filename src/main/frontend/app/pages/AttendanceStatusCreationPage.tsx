@@ -10,7 +10,7 @@ type FormData = {
 };
 
 export default function AttendanceStatusCreationPage() {
-    const taskEventApi = useContext(AttendanceStatusApiContext);
+    const attendanceStatusApi = useContext(AttendanceStatusApiContext);
     const { register, handleSubmit, setError, formState: { isSubmitting, errors, isSubmitSuccessful } } = useForm<FormData>();
 
     const onSubmit = async (formData: FormData) => {
@@ -19,7 +19,7 @@ export default function AttendanceStatusCreationPage() {
             description: formData.description ? formData.description : undefined,
             isExcusable: formData.isExcusable
         };
-        const response = await taskEventApi.createAttendanceStatus(request);
+        const response = await attendanceStatusApi.createAttendanceStatus(request);
         if (response.raw.status !== 201) {
             setError("root", {
                 message: "Something went wrong while creating the attendance status",

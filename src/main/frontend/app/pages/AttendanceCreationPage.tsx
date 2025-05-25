@@ -19,7 +19,6 @@ export default function AttendanceCreationPage() {
     const userApi = useContext(UserApiContext);
     const attendanceStatusApi = useContext(AttendanceStatusApiContext);
     const { register, handleSubmit, setError, watch, formState: { isSubmitting, errors, isSubmitSuccessful } } = useForm<FormData>();
-    const watchUser = watch("user");
     const [schedule, setSchedule] = useState<Schedule | undefined>(undefined);
     const [scheduleDays, setScheduleDays] = useState<ScheduleDay[] | undefined>(undefined);
     const [selectedScheduleDay, setSelectedScheduleDay] = useState<ScheduleDay | undefined>(undefined);
@@ -86,7 +85,6 @@ export default function AttendanceCreationPage() {
         if (!response.raw.ok) {
             throw new Error("Something went wrong while fetching the users");
         }
-        console.log(response.body.users);
         setUsers([...response.body.users]);
     }
 
@@ -115,10 +113,10 @@ export default function AttendanceCreationPage() {
         const [startHours, startMinutes] = data.startTime.split(":").map(Number);
         const [endHours, endMinutes] = data.endTime.split(":").map(Number);
         const startDateTime = new Date(selectedScheduleDay.startDateTime);
-        startDateTime.setHours(startHours + 1);
+        startDateTime.setHours(startHours);
         startDateTime.setMinutes(startMinutes);
         const endDateTime = new Date(selectedScheduleDay.startDateTime);
-        endDateTime.setHours(endHours + 1);
+        endDateTime.setHours(endHours);
         endDateTime.setMinutes(endMinutes);
         if (startHours > endHours) {
             endDateTime.setDate(endDateTime.getDate() + 1);

@@ -18,8 +18,6 @@ export function AuthFilter(props: Props) {
     const [content, setContent] = useState<ReactNode>(undefined);
     const [isSessionChecked, setIsSessionChecked] = useState(false);
 
-    //console.log("Rendering filter...");
-
     useEffect(() => {
         async function fetchSession() {
             const response = await loginApi.session();
@@ -53,7 +51,6 @@ export function AuthFilter(props: Props) {
         }
         if (isAuthenticated && isAuthorized) {
             if (isAuthorized) {
-                //console.log("isAuthorized");
                 return setContent(props.content);
             } else {
                 setContent(<NotAllowedPage />);

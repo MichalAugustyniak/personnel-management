@@ -32,14 +32,12 @@ public class DefaultScheduleService implements ScheduleService {
     private final UserScheduleRepository userScheduleRepository;
     private final UserRepository userRepository;
     private final ShiftTypeRepository shiftTypeRepository;
-    private final UserUtils userUtils;
 
-    public DefaultScheduleService(ScheduleRepository scheduleRepository, UserScheduleRepository userScheduleRepository, UserRepository userRepository, ShiftTypeRepository shiftTypeRepository, UserUtils userUtils) {
+    public DefaultScheduleService(ScheduleRepository scheduleRepository, UserScheduleRepository userScheduleRepository, UserRepository userRepository, ShiftTypeRepository shiftTypeRepository) {
         this.scheduleRepository = scheduleRepository;
         this.userScheduleRepository = userScheduleRepository;
         this.userRepository = userRepository;
         this.shiftTypeRepository = shiftTypeRepository;
-        this.userUtils = userUtils;
     }
 
     @Override
@@ -243,7 +241,6 @@ public class DefaultScheduleService implements ScheduleService {
         Optional.ofNullable(dto.schedule().enableHolidayAssignments()).ifPresent(schedule::setEnableHolidayAssignments);
         Optional.ofNullable(dto.schedule().enableWorkingSaturdays()).ifPresent(schedule::setEnableWorkingSaturdays);
         Optional.ofNullable(dto.schedule().enableWorkingSundays()).ifPresent(schedule::setEnableWorkingSundays);
-        // todo: validate the schedule
         scheduleRepository.save(schedule);
     }
 
@@ -265,32 +262,12 @@ public class DefaultScheduleService implements ScheduleService {
         scheduleRepository.delete(schedule);
     }
 
-    /*
-    @Override
-    public ScheduleDTO getActiveSchedule(ActiveScheduleRequest request) {
-        User user = userRepository.findByUsername(request.user()).orElseThrow(
-                () -> new UserNotFoundException(String.format("User of username %s not found", request.user()))
-        );
-        UserSchedule userSchedule = userScheduleRepository.findByIsActiveAndUser(true, user)
-                .orElseThrow(() -> new ScheduleNotFoundException("Active schedule not found"));
-        Schedule schedule = userSchedule.getSchedule();
-        return ScheduleMapper.map(schedule);
-    }
-
-     */
-
     @Override
     public SchedulesResponse getSchedules(AuthenticatedRequest<SchedulesRequest> request) {
         var requestBody = request.request();
         int pageNumber = Optional.ofNullable(requestBody.pageNumber()).orElse(0);
         int pageSize = Optional.ofNullable(requestBody.pageSize()).orElse(10);
-        User principalUser = userUtils.fetchUserByUsername(request.principalName());
-
         Specification<Schedule> specification = Specification.where(null);
-
-        boolean isEmployeeOrManager = principalUser.getRole().getName().equals(DefaultRoleNames.MANAGER) ||
-                principalUser.getRole().getName().equals(DefaultRoleNames.EMPLOYEE);
-
         if (requestBody.user() != null) {
             User user = userRepository.findByUsername(requestBody.user())
                     .orElseThrow(() -> new UserNotFoundException(String.format("User of username %s not found", requestBody.user())));
@@ -300,16 +277,13 @@ public class DefaultScheduleService implements ScheduleService {
 
             specification = specification.and(hasUserUUID);
         }
-
         if (requestBody.isActive() != null) {
             Specification<Schedule> isActive = (root, query, criteriaBuilder) ->
                     criteriaBuilder.equal(root.join("userSchedules").get("isActive"), requestBody.isActive());
 
             specification = specification.and(isActive);
         }
-
         Page<Schedule> schedules = scheduleRepository.findAll(specification, PageRequest.of(pageNumber, pageSize));
-
         return new SchedulesResponse(
                 schedules.getTotalElements(),
                 schedules.getTotalPages(),
@@ -331,11 +305,6 @@ public class DefaultScheduleService implements ScheduleService {
 
     @Override
     public ScheduleDTO getSchedule(ScheduleRequest request) {
-        /*
-        Schedule schedule = scheduleRepository.findByUuid(request.uuid())
-                .orElseThrow(() -> new ScheduleNotFoundException(String.format("Schedule of uuid %s not found", request.uuid())));
-
-         */
         Schedule schedule = scheduleRepository.findByUuidWithSortedDaysAndBreaks(request.uuid())
                 .orElseThrow(() -> new ScheduleNotFoundException(String.format("Schedule of uuid %s not found", request.uuid())));
         return ScheduleMapper.map(schedule);
@@ -379,22 +348,8 @@ public class DefaultScheduleService implements ScheduleService {
         if (users.size() != dto.users().size()) {
             throw new UserNotFoundException("Some of the users not found");
         }
-        Schedule schedule = scheduleRepository.findByUuid(dto.scheduleUUID())
+        scheduleRepository.findByUuid(dto.scheduleUUID())
                 .orElseThrow(() -> new ScheduleNotFoundException(String.format("Schedule of uuid %s not found", dto.scheduleUUID())));
         userScheduleRepository.updateIsActiveUserIn(false, users);
-        //userScheduleRepository.deleteByScheduleAndUserIn(schedule, users);
     }
-
-    /*
-    @Override
-    public ScheduleDTO getActiveScheduleByUser(UUID userUUID) {
-        User user = userRepository.findByUuid(userUUID).orElseThrow(() -> new UserNotFoundException(String.format("User of uuid %s not found", userUUID)));
-        Schedule schedule = userScheduleRepository.findByIsActiveAndUser(true, user).orElseThrow(
-                () -> new ScheduleNotFoundException("This user has no active schedule")
-        ).getSchedule();
-        Optional.ofNullable(schedule).orElseThrow(() -> new ScheduleNotFoundException("This user has no active schedule"));
-        return ScheduleMapper.map(schedule);
-    }
-
-     */
 }

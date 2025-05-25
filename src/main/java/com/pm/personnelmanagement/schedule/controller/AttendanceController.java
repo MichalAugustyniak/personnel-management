@@ -12,7 +12,6 @@ public interface AttendanceController {
             Integer pageSize,
             String user,
             UUID scheduleDayUUID,
-            UUID absenceExcuseUUID,
             UUID attendanceStatusUUID
     );
     ResponseEntity<AttendanceCreationResponse> createAttendance(AttendanceCreationRequest dto);

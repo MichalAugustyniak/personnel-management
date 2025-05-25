@@ -16,8 +16,6 @@ export default function UserInfoPage({uuid}: Props) {
     const params = new URLSearchParams(location.search);
     let fetchedUUID = params.get("uuid") || uuid;
 
-
-
     useEffect(() => {
         const fetchUser = async () => {
             if (!fetchedUUID) {

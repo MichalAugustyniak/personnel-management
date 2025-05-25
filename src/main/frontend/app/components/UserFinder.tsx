@@ -44,12 +44,10 @@ export default function UsersFinder({onClick}: Props) {
                 pageNumber: currentPage === undefined ? 0 : currentPage,
                 pageSize: 50
             };
-            console.log(request);
             let fetchedUsers = await getUsers(request);
             setCurrentPage(0);
             let nextUsers: User[] = [...fetchedUsers.users];
             setUsers(nextUsers);
-            console.log(`fetchedUsers.totalPages=${fetchedUsers.totalPages}  currentPage=${currentPage!}`);
             if (fetchedUsers.totalPages - 1 <= (currentPage !== undefined ? currentPage : 0)) {
                 setCanLoadMore(false);
             } else {
@@ -110,7 +108,6 @@ export default function UsersFinder({onClick}: Props) {
                         <option value={DefaultRoles.EMPLOYEE}>Employee</option>
                         <option value={DefaultRoles.MANAGER}>Manager</option>
                         <option value={DefaultRoles.HR}>HR</option>
-                        <option value={DefaultRoles.ACCOUNTANT}>Accountant</option>
                     </select>
                     <select className={"rounded"} defaultValue={""} {...register("sex")}>
                         <option value={""}>Any</option>

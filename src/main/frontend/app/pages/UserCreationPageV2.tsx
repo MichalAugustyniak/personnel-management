@@ -86,7 +86,7 @@ type FormData = {
         apartmentNumber: string,
     },
     role: string,
-    isActive: 0 | 1,
+    isActive: "0" | "1",
 }
 
 type UserCreationForm = {
@@ -131,7 +131,7 @@ export default function UserCreationPageV2() {
                 apartmentNumber: data.address.apartmentNumber ? data.address.apartmentNumber.trim() : undefined,
             },
             role: data.role,
-            isActive: data.isActive === 1,
+            isActive: data.isActive === "1",
         };
         //submit(userApi, addressApi, form);
         console.log(form);

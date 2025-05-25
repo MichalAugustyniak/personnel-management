@@ -1,6 +1,6 @@
 package com.pm.personnelmanagement.schedule.service;
 
-import com.pm.personnelmanagement.permission.exception.UnauthorizedException;
+import com.pm.personnelmanagement.common.UnauthorizedException;
 import com.pm.personnelmanagement.schedule.dto.*;
 import com.pm.personnelmanagement.schedule.exception.*;
 import com.pm.personnelmanagement.schedule.mapper.AttendanceMapper;
@@ -12,15 +12,12 @@ import com.pm.personnelmanagement.user.exception.UserNotFoundException;
 import com.pm.personnelmanagement.user.model.User;
 import com.pm.personnelmanagement.user.repository.UserRepository;
 import com.pm.personnelmanagement.user.util.UserUtils;
-import jakarta.validation.constraints.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
-import javax.swing.text.html.Option;
-import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -28,16 +25,14 @@ import java.util.UUID;
 @Service
 public class DefaultAttendanceService implements AttendanceService {
     private final AttendanceRepository attendanceRepository;
-    private final AbsenceExcuseRepository absenceExcuseRepository;
     private final AttendanceStatusRepository attendanceStatusRepository;
     private final ScheduleDayRepository scheduleDayRepository;
     private final UserRepository userRepository;
     private final UserUtils userUtils;
     private final UserScheduleRepository userScheduleRepository;
 
-    public DefaultAttendanceService(AttendanceRepository attendanceRepository, AbsenceExcuseRepository absenceExcuseRepository, AttendanceStatusRepository attendanceStatusRepository, ScheduleDayRepository scheduleDayRepository, UserRepository userRepository, UserUtils userUtils, UserScheduleRepository userScheduleRepository) {
+    public DefaultAttendanceService(AttendanceRepository attendanceRepository, AttendanceStatusRepository attendanceStatusRepository, ScheduleDayRepository scheduleDayRepository, UserRepository userRepository, UserUtils userUtils, UserScheduleRepository userScheduleRepository) {
         this.attendanceRepository = attendanceRepository;
-        this.absenceExcuseRepository = absenceExcuseRepository;
         this.attendanceStatusRepository = attendanceStatusRepository;
         this.scheduleDayRepository = scheduleDayRepository;
         this.userRepository = userRepository;
@@ -55,9 +50,9 @@ public class DefaultAttendanceService implements AttendanceService {
 
     @Override
     public AttendancesResponse getAttendances(AuthenticatedRequest<AttendancesRequest> request) {
+        System.out.println(request);
         User principalUser = userUtils.fetchUserByUsername(request.principalName());
         boolean isEmployee = principalUser.getRole().getName().equals(DefaultRoleNames.EMPLOYEE);
-        boolean isManager = principalUser.getRole().getName().equals(DefaultRoleNames.MANAGER);
         Specification<Attendance> specification = Specification.where(null);
 
         if (isEmployee && !principalUser.getUsername().equals(request.request().user()) && request.request().user() != null) {
@@ -65,32 +60,14 @@ public class DefaultAttendanceService implements AttendanceService {
         }
 
         if (isEmployee) {
-            UserSchedule userSchedule = userScheduleRepository.findByIsActiveAndUser(true, principalUser)
-                    .orElseThrow(() -> new UserScheduleNotFoundException("This user has no active schedule"));
-            Specification<Attendance> hasSchedule = (root, query, criteriaBuilder) ->
-                    criteriaBuilder.equal(root.get("scheduleDay").get("schedule"), userSchedule.getSchedule());
-            specification = specification.and(hasSchedule);
-
             Specification<Attendance> hasUser = (root, query, criteriaBuilder) ->
                     criteriaBuilder.equal(root.get("user"), principalUser);
             specification = specification.and(hasUser);
 
         } else if (request.request().user() != null) {
-            User user = userRepository.findByUsername(request.request().user()).orElseThrow(
-                    () -> new UserNotFoundException(String.format("User of uuid %s not found", request.request().user()))
-            );
             Specification<Attendance> hasUser = (root, query, criteriaBuilder) ->
-                    criteriaBuilder.equal(root.get("user"), user);
+                    criteriaBuilder.like(root.get("user").get("username"), "%" + request.request().user() + "%");
             specification = specification.and(hasUser);
-        }
-
-        if (request.request().absenceExcuseUUID() != null) {
-            AbsenceExcuse absenceExcuse = absenceExcuseRepository.findByUuid(request.request().absenceExcuseUUID()).orElseThrow(
-                    () -> new AbsenceExcuseNotFoundException(String.format("Absence excuse of uuid %s not found", request.request().absenceExcuseUUID()))
-            );
-            Specification<Attendance> hasAbsenceExcuse = (root, query, criteriaBuilder) ->
-                    criteriaBuilder.equal(root.join("absenceExcuses"), absenceExcuse);
-            specification = specification.and(hasAbsenceExcuse);
         }
 
         if (request.request().attendanceStatusUUID() != null) {
@@ -168,13 +145,6 @@ public class DefaultAttendanceService implements AttendanceService {
         Attendance attendance = attendanceRepository.findByUuid(request.request().uuid()).orElseThrow(
                 () -> new AttendanceNotFoundException(String.format("Attendance of uuid %s not found", request.request().uuid()))
         );
-        if (isManager) {
-            UserSchedule userSchedule = userScheduleRepository.findByIsActiveAndUser(true, principalUser)
-                    .orElseThrow(() -> new UserScheduleNotFoundException("This user has no active schedule"));
-            if (!attendance.getScheduleDay().getSchedule().getUuid().equals(userSchedule.getSchedule().getUuid())) {
-                throw new UnauthorizedException("You are not allowed to do that");
-            }
-        }
         attendanceRepository.delete(attendance);
     }
 }

@@ -40,7 +40,6 @@ public class DefaultAddressController {
             @RequestParam(defaultValue = "0") int pageNumber,
             @RequestParam(defaultValue = "50") int pageSize
     ) {
-        System.out.println("IsoCode" + countryIsoCode);
         return ResponseEntity.ok(
                 addressService.getAddresses(new AddressesRequest(
                         countryIsoCode,

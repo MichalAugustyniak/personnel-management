@@ -24,7 +24,6 @@ async function session(loginApi: LoginApi, navigate: NavigateFunction) {
         navigate("/manager");
     }
     if (roles.includes(DefaultRoles.ADMIN)) {
-        console.log("roles includes admin");
         navigate("/admin");
     }
     if (roles.includes(DefaultRoles.EMPLOYEE)) {
@@ -69,8 +68,10 @@ export default function LoginPage() {
         if (!response.raw.ok) {
             throw new Error("Something went wrong while fetching the logo");
         }
-        console.log(logoApi.getHost() + response.body.propertyValue);
-        setLogo(logoApi.getHost() + response.body.propertyValue);
+        if (response.body.propertyValue) {
+            console.log(response.body.propertyValue);
+            setLogo(logoApi.getHost() + response.body.propertyValue);
+        }
     }
 
     useEffect(() => {

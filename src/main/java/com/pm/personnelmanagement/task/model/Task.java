@@ -46,17 +46,6 @@ public class Task {
     @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY)
     private User createdBy;
 
-    /*
-    @ElementCollection
-    @CollectionTable(
-            name = "task_user",
-            joinColumns = @JoinColumn(name = "task_id")
-    )
-    @Column(name = "user_id")
-    private Set<String> users = new HashSet<>();
-
-     */
-
     @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY)
     @JoinTable(
             name = "users_tasks",
@@ -152,16 +141,6 @@ public class Task {
     public void setUsers(Set<User> users) {
         this.users = users;
     }
-/*
-    public Set<String> getUsers() {
-        return users;
-    }
-
-    public void setUsers(Set<String> users) {
-        this.users = users;
-    }
-
-     */
 
     public TaskEvent getTaskEvent() {
         return taskEvent;

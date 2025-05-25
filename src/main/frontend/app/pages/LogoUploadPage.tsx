@@ -4,7 +4,6 @@ import {LogoApiContext} from "~/context/context";
 export default function LogoUploadPage() {
     const [logo, setLogo] = useState<string>("");
     const [file, setFile] = useState<File | null>(null);
-
     const logoApi = useContext(LogoApiContext);
 
     const fetchLogo = async () => {
@@ -12,8 +11,9 @@ export default function LogoUploadPage() {
         if (!response.raw.ok) {
             throw new Error("Something went wrong while fetching the logo");
         }
-        console.log(logoApi.getHost() + response.body.propertyValue);
-        setLogo(logoApi.getHost() + response.body.propertyValue);
+        if (response.body.propertyValue) {
+            setLogo(logoApi.getHost() + response.body.propertyValue);
+        }
     }
 
     useEffect(() => {

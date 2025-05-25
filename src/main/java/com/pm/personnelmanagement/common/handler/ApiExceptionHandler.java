@@ -1,13 +1,12 @@
 package com.pm.personnelmanagement.common.handler;
 
+import com.pm.personnelmanagement.common.NotImplementedException;
 import com.pm.personnelmanagement.common.dto.ApiException;
 import com.pm.personnelmanagement.config.UnauthenticatedException;
-import com.pm.personnelmanagement.file.exception.FileNotFoundException;
-import com.pm.personnelmanagement.file.exception.MissingFileMediaTypeException;
-import com.pm.personnelmanagement.file.exception.NotImplementedException;
 import com.pm.personnelmanagement.task.exception.TaskNotFoundException;
 import com.pm.personnelmanagement.taskevent.expcetion.TaskEventNotFoundException;
 import com.pm.personnelmanagement.user.exception.AddressNotFoundException;
+import com.pm.personnelmanagement.user.exception.UserNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -40,17 +39,6 @@ public class ApiExceptionHandler {
         return new ResponseEntity<>(exception, status);
     }
 
-    @ExceptionHandler(value = FileNotFoundException.class)
-    public ResponseEntity<Object> fileNotFoundException(FileNotFoundException e) {
-        HttpStatus status = HttpStatus.NOT_FOUND;
-        ApiException exception = new ApiException(
-                e.getMessage(),
-                status.value(),
-                LocalDateTime.now()
-        );
-        return new ResponseEntity<>(exception, status);
-    }
-
     @ExceptionHandler(value = NotImplementedException.class)
     public ResponseEntity<Object> notImplementedException(NotImplementedException e) {
         HttpStatus status = HttpStatus.NOT_IMPLEMENTED;
@@ -62,9 +50,9 @@ public class ApiExceptionHandler {
         return new ResponseEntity<>(exception, status);
     }
 
-    @ExceptionHandler(value = MissingFileMediaTypeException.class)
-    public ResponseEntity<Object> MissingFileMediaTypeException(MissingFileMediaTypeException e) {
-        HttpStatus status = HttpStatus.BAD_REQUEST;
+    @ExceptionHandler(value = UserNotFoundException.class)
+    public ResponseEntity<Object> userNotFoundException(NotImplementedException e) {
+        HttpStatus status = HttpStatus.NOT_FOUND;
         ApiException exception = new ApiException(
                 e.getMessage(),
                 status.value(),

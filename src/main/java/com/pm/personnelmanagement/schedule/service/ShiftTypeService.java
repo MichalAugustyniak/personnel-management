@@ -11,5 +11,5 @@ public interface ShiftTypeService {
 
     void updateShiftType(ShiftTypeUpdateRequest dto);
 
-    void deleteFilter(ShiftTypeDeletionRequest dto);
+    void deleteShiftType(ShiftTypeDeletionRequest dto);
 }

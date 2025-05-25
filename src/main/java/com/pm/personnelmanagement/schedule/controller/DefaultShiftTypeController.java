@@ -2,8 +2,6 @@ package com.pm.personnelmanagement.schedule.controller;
 
 import com.pm.personnelmanagement.schedule.dto.*;
 import com.pm.personnelmanagement.schedule.service.ShiftTypeService;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -60,7 +58,7 @@ public class DefaultShiftTypeController implements ShiftTypeController{
     @DeleteMapping("/{uuid}")
     @Override
     public ResponseEntity<Void> deleteFilter(@PathVariable UUID uuid) {
-        shiftTypeService.deleteFilter(new ShiftTypeDeletionRequest(uuid));
+        shiftTypeService.deleteShiftType(new ShiftTypeDeletionRequest(uuid));
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

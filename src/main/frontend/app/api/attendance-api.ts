@@ -17,7 +17,6 @@ export interface AttendancesRequest {
     pageSize: number;
     user?: string;
     scheduleDayUUID?: string;
-    absenceExcuseUUID?: string;
     attendanceStatusUUID?: string;
 }
 
@@ -94,9 +93,6 @@ export class AttendanceApiV1 extends ApiBase implements AttendanceApi {
 
     private requestUrl(request: AttendancesRequest) {
         const url = new URL(`${this.url}/api/attendances`);
-        if (request.absenceExcuseUUID) {
-            url.searchParams.append("absenceExcuseUUID", request.absenceExcuseUUID);
-        }
         if (request.attendanceStatusUUID) {
             url.searchParams.append("attendanceStatusUUID", request.attendanceStatusUUID);
         }
