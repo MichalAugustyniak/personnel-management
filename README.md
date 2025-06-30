@@ -2,9 +2,6 @@
 Web application for personnel management in micro and small businesses. The application allows users to create and group tasks, create work schedules, and record employee working 
 hours. A dedicated dashboard is available for each role in the system (administrator, employee, manager, HR department employee).
 
-## Entity Relationship Diagram
-![erd2](https://github.com/user-attachments/assets/4b59d94a-b263-4f50-9e9d-22079e948d1e)
-
 ## Tech stack
 - Java 21
 - Spring Boot 3.4.1
@@ -12,6 +9,9 @@ hours. A dedicated dashboard is available for each role in the system (administr
 - React Router v7
 - Tailwind CSS
 - MySQL
+
+## Entity Relationship Diagram
+![erd2](https://github.com/user-attachments/assets/4b59d94a-b263-4f50-9e9d-22079e948d1e)
 
 ## Screenshots
 ![obraz](https://github.com/user-attachments/assets/362ba888-f924-4fe2-90b3-0741c0d6e6f8)
