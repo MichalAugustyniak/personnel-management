@@ -40,4 +40,4 @@ jobs:
         tags: MichalAugustyniak/pm-backend:latest
 
     - name: Logout from Docker Hub
-      uses: docker/logout-action@v2
+      run: docker logout
