@@ -2,6 +2,23 @@
 Web application for personnel management in micro and small businesses. The application allows users to create and group tasks, create work schedules, and record employee working 
 hours. A dedicated dashboard is available for each role in the system (administrator, employee, manager, HR department employee).
 
+## Docker
+
+### Backend
+https://hub.docker.com/r/michalaugustyniak/pm-backend
+
+### Frontend
+
+#### Dockerfile directory:
+```ps
+src/main/frontend
+```
+
+#### Dockerfile build command:
+```ps
+docker build --build-arg VITE_API_URL=[backend_url] -t [image_name] .
+```
+
 ## Tech stack
 - Java 21
 - Spring Boot 3.4.1
